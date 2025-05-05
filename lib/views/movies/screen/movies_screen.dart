@@ -1,4 +1,4 @@
-// Tab Widgets - Replace these with your actual content
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,23 +46,17 @@ class MoviesTab extends StatelessWidget {
 
   Widget _buildEmptyState(MoviesProvider provider, BuildContext context) {
     return RefreshIndicator(
-      onRefresh: ()async{
-        if(onRefresh!() != null){
-          onRefresh!();
-        }
+      onRefresh: () async {
+        if (onRefresh != null) onRefresh!();
       },
       color: Styles.primaryColor,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 100),
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.8,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("No movies found"),
-              ],
-            ),
+          child: const Center(
+            child: Text("No movies found", style: TextStyle(color: Colors.white)),
           ),
         ),
       ),
@@ -70,24 +64,20 @@ class MoviesTab extends StatelessWidget {
   }
 
   Widget _buildMoviesGrid(MoviesProvider provider, BuildContext context) {
-
     return RefreshIndicator(
-      onRefresh: ()async{
-        if(onRefresh!() != null){
-          onRefresh!();
-        }
+      onRefresh: () async {
+        if (onRefresh != null) onRefresh!();
       },
       color: Styles.primaryColor,
       child: GridView.builder(
-        // controller: homeState._scrollController,
         controller: scrollController,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
           childAspectRatio: 0.7,
         ),
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 100),
         itemCount: provider.moviesList.length + (provider.hasMore.get() ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= provider.moviesList.length) {
@@ -112,51 +102,145 @@ class MovieGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+    final ValueNotifier<bool> isFavorite = ValueNotifier(false);
+    final ValueNotifier<bool> isWatchlisted = ValueNotifier(false);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: [Colors.black.withOpacity(0.7), Colors.black.withOpacity(0.4)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Image.network(
-              "https://image.tmdb.org/t/p/w500${movie.posterPath ?? ""}",
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: Colors.grey[300],
-                child: const Center(child: Icon(Icons.broken_image)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              movie.title ?? "No title",
-              style: Theme.of(context).textTheme.titleSmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          // Optional: show movie details
+        },
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(Icons.star, color: Colors.amber, size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  movie.voteAverage?.toStringAsFixed(1) ?? "0.0",
-                  style: Theme.of(context).textTheme.bodySmall,
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    child: Image.network(
+                      "https://image.tmdb.org/t/p/w500${movie.posterPath ?? ""}",
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey[300],
+                        child: const Center(child: Icon(Icons.broken_image, color: Colors.black)),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                  child: Text(
+                    movie.title ?? "No title",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        movie.voteAverage?.toStringAsFixed(1) ?? "0.0",
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+            // Favorite toggle (glassmorphic)
+            Positioned(
+              top: 10,
+              left: 10,
+              child: ValueListenableBuilder<bool>(
+                valueListenable: isFavorite,
+                builder: (_, value, __) => GestureDetector(
+                  onTap: () => isFavorite.value = !value,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.black.withOpacity(0.35),
+                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                        ),
+                        child: Icon(
+                          value ? Icons.favorite : Icons.favorite_border,
+                          color: value ? Colors.redAccent : Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Watchlist toggle (glassmorphic)
+            Positioned(
+              top: 10,
+              right: 10,
+              child: ValueListenableBuilder<bool>(
+                valueListenable: isWatchlisted,
+                builder: (_, value, __) => GestureDetector(
+                  onTap: () => isWatchlisted.value = !value,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.black.withOpacity(0.35),
+                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                        ),
+                        child: Icon(
+                          value ? Icons.bookmark : Icons.bookmark_border,
+                          color: value ? Colors.amber : Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-

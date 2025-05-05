@@ -84,31 +84,62 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(title: const Text("Movies")),
-      body: _tabs[_currentIndex],
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Styles.primaryColor,
-        elevation: 0,
-        shape: CircleBorder(),
-        child: const Icon(Icons.movie, color: Colors.white,),
-        onPressed: () => setState(() => _currentIndex = 4), // Recommended tab
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar:  AnimatedBottomNavigationBar(
-        icons: _iconList,
-        activeIndex: _currentIndex,
-
-        gapLocation: GapLocation.center,
-        leftCornerRadius: 20,
-        rightCornerRadius: 20,
-        onTap: (index) => setState(() => _currentIndex = index),
-        activeColor: Styles.primaryColor,
-        inactiveColor: Colors.grey,
-        iconSize: 24,
-        backgroundColor: Styles().darkAppBarColor,
+    return SafeArea(
+      child: Scaffold(
+        extendBody: true,
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.black.withOpacity(0.2),
+          elevation: 0,
+          centerTitle: true,
+          title: const Text(
+            "MovieCon",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        body: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF0F0C29), Color(0xFF302B63), Color(0xFF24243E)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+            _tabs[_currentIndex],
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Styles.primaryColor,
+          elevation: 8,
+          shape: const CircleBorder(),
+          child: const Icon(Icons.movie, color: Colors.white),
+          onPressed: () => setState(() => _currentIndex = 4),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: AnimatedBottomNavigationBar(
+          icons: _iconList,
+          activeIndex: _currentIndex,
+          gapLocation: GapLocation.center,
+          notchSmoothness: NotchSmoothness.softEdge,
+          backgroundColor: Colors.black.withOpacity(0.6),
+          leftCornerRadius: 20,
+          rightCornerRadius: 20,
+          onTap: (index) => setState(() => _currentIndex = index),
+          activeColor: Styles.primaryColor,
+          inactiveColor: Colors.white60,
+          iconSize: 26,
+        ),
       ),
     );
   }
 }
+
