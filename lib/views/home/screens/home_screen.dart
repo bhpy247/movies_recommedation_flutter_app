@@ -1,5 +1,6 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:moviesapp/backend/authentication/authentication_controller.dart';
 import 'package:moviesapp/backend/navigation/navigation_controller.dart';
 import 'package:moviesapp/views/chat/screens/chat_screen.dart';
 import 'package:moviesapp/views/profile/screens/profile_screen.dart';
@@ -75,6 +76,49 @@ class _HomeScreenState extends State<HomeScreen> {
     await _moviesController.refreshMoviesList(context);
   }
 
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Logout',
+            style: TextStyle(
+              color: Color(0xFFD24DFF),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text('Are you sure you want to logout?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: Text('Logout',style: TextStyle(color: Colors.white),),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFD24DFF), // Button color
+              ),
+              onPressed: () async {
+                // Perform logout action here
+
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Logged out successfully')),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   final _iconList = <IconData>[
     Icons.home,
     Icons.chat_bubble,
@@ -86,7 +130,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(title: const Text("Movies")),
+      appBar: AppBar(title: const Text("Movies"), actions: [
+
+        IconButton(onPressed: () async {
+          await AuthenticationController(authenticationProvider: context.read()).logout(isNavigateToLogin: true,isShowConfirmationDialog: true);
+        }, icon: Icon(Icons.logout))
+
+      ],),
       body: _tabs[_currentIndex],
       floatingActionButton: FloatingActionButton(
         backgroundColor: Styles.primaryColor,
