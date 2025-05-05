@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:lottie/lottie.dart';
+import 'package:moviesapp/configs/constants.dart';
 import 'package:moviesapp/utils/extensions.dart';
+import 'package:moviesapp/utils/shared_pref_manager.dart';
 
 // import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +13,7 @@ import 'package:moviesapp/backend/authentication/authentication_provider.dart';
 import 'package:moviesapp/backend/navigation/navigation_controller.dart';
 import 'package:moviesapp/backend/navigation/navigation_operation_parameters.dart';
 import 'package:moviesapp/backend/navigation/navigation_type.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../models/user_model/user_model.dart';
 import '../../../utils/my_print.dart';
@@ -58,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     // Check login status after animations complete
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       NavigationController.isFirst = false;
-      Future.delayed(const Duration(seconds: 10), () async {
+      Future.delayed(const Duration(seconds: 5), () async {
         await checkLogin();
       });
     });
@@ -69,16 +72,22 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     MyPrint.printOnConsole("SplashScreen().checkLogin() called", tag: tag);
 
     NavigationController.isFirst = false;
+    SharedPrefManager prefs = SharedPrefManager();
+
 
     AuthenticationProvider authenticationProvider = context.read<AuthenticationProvider>();
 
     if (context.checkMounted() && context.mounted) {
-      bool isExist = await authenticationController.checkUserWithIdExistOrNotAndIfNotExistThenCreate(userId: authenticationProvider.userId.get());
+      bool isExist = await authenticationController.isUserLoggedIn();
       MyPrint.printOnConsole("isExist:$isExist", tag: tag);
      if(isExist){
 
       if (context.checkMounted() && context.mounted) {
+        String userId = await prefs.getString(SharePreferenceKeys.userIdKey) ?? "";
+        await authenticationController.checkUserWithIdExistOrNotAndIfNotExistThenCreate(userId: userId);
         UserModel? userModel = authenticationProvider.userModel.get();
+
+        MyPrint.printOnConsole("userModel");
 
         if (userModel != null && userModel.name.isEmpty) {
           await NavigationController.navigateToLoginScreen(
