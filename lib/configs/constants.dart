@@ -10,6 +10,8 @@ class SharePreferenceKeys {
   static const String isFirstTimeUser = "isFirstTimeUser";
   static const String userIdKey = "userIdKey";
   static const String userNameKey = "userNameKey";
+  static const String authenticatedUserName = "authenticatedUserName";
+  static const String authenticatedUserEmail = "authenticatedUserEmail";
 }
 
 class FirebaseNodes {
@@ -72,7 +74,7 @@ class FirebaseNodes {
   //endregion
 
   //region User
-  static const String usersCollection = "users";
+  static const String usersCollection = "user";
 
   static MyFirestoreCollectionReference get usersCollectionReference => FirestoreController.collectionReference(
     collectionName: usersCollection,

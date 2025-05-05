@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -83,7 +84,7 @@ class AuthenticationController {
 
         authenticationProvider.userModel.set(value: userModel, isNotify: false);
       } else {
-        UserModel createdUserModel = UserModel(id: userId, email: authenticationProvider.email.get());
+        UserModel createdUserModel = await createUserModelFromSharedPref();
         bool isCreated = await userController.createNewUser(userModel: createdUserModel);
         MyPrint.printOnConsole("isUserCreated:'$isCreated'", tag: tag);
 
@@ -98,6 +99,130 @@ class AuthenticationController {
 
     return isUserExist;
   }
+
+  Future<bool> getUserModel({required String userId}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("AuthenticationController().checkUserWithIdExistOrNotAndIfNotExistThenCreate() called with userId:'$userId'", tag: tag);
+
+    bool isUserExist = false;
+
+    if (userId.isEmpty) return isUserExist;
+
+    UserController userController = UserController();
+
+    try {
+      UserModel? userModel = await userController.userRepository.getUserModelFromId(userId: userId);
+      MyPrint.printOnConsole("userModel:'$userModel'", tag: tag);
+
+      if (userModel != null) {
+        isUserExist = true;
+
+        authenticationProvider.userModel.set(value: userModel, isNotify: false);
+      }
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in AuthenticationController().checkUserWithIdExistOrNotAndIfNotExistThenCreate():'$e'", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    return isUserExist;
+  }
+
+  Future<User?> loginWithEmail({required String email, required String password}) async {
+    try {
+      UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+      // Store session data
+      await _storeUserData(userCredential.user);
+
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Login error: ${e.code} - ${e.message}');
+      throw _convertFirebaseError(e);
+    } catch (e) {
+      debugPrint('Unexpected login error: $e');
+      throw 'Login failed. Please try again.';
+    }
+  }
+
+  Future<UserModel> createUserModelFromSharedPref() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    String userID =prefs.getString(SharePreferenceKeys.userIdKey) ?? "";
+    String email =prefs.getString(SharePreferenceKeys.authenticatedUserEmail) ?? "";
+    String name =prefs.getString(SharePreferenceKeys.userNameKey) ?? "";
+    String token =prefs.getString(SharePreferenceKeys.bearerToken) ?? "";
+    String userName =prefs.getString(SharePreferenceKeys.authenticatedUserName) ?? "";
+
+
+    UserModel userModel =  UserModel(email: email,name: name,id: userID,createdTime: Timestamp.now());
+
+    return userModel;
+  }
+
+  Future<void> _storeUserData(User? user) async {
+    if (user == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SharePreferenceKeys.userIdKey, user.uid);
+    await prefs.setString(SharePreferenceKeys.authenticatedUserEmail, user.email ?? '');
+    await prefs.setString(SharePreferenceKeys.userNameKey, user.displayName ?? '');
+    await prefs.setString(SharePreferenceKeys.bearerToken, await user.getIdToken() ?? '');
+    await prefs.setString(SharePreferenceKeys.authenticatedUserName, user.email ?? "");
+    MyPrint.printOnConsole("in store data ${prefs.getString("key")}");
+    
+    authenticationProvider.userModel.set(value: UserModel(id: user.uid, name: user.displayName ??"", email: user.email ?? ""));
+    authenticationProvider.userId.set(value: user.uid);
+
+  }
+
+  String _convertFirebaseError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'Please enter a valid email address';
+      case 'user-disabled':
+        return 'This account has been disabled';
+      case 'user-not-found':
+      case 'wrong-password':
+        return 'Invalid email or password';
+      case 'email-already-in-use':
+        return 'An account already exists with this email';
+      case 'weak-password':
+        return 'Password should be at least 6 characters';
+      case 'operation-not-allowed':
+        return 'Email/password accounts are not enabled';
+      default:
+        return e.message ?? 'An unknown error occurred';
+    }
+  }
+
+  Future<User?> registerWithEmail({required String email, required String password, required String name}) async {
+    try {
+      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+
+      // Update user profile with name
+      UserController userController = UserController();
+      String userId =  userCredential.user?.uid ?? "";
+      String userEmail = userCredential.user?.email ?? "";
+
+      UserModel createdUserModel = UserModel(id: userId, email: userEmail, name:name);
+      bool isCreated = await userController.createNewUser(userModel: createdUserModel);
+      MyPrint.printOnConsole("isUserCreated:'$isCreated'",);
+
+      if (isCreated) {
+        authenticationProvider.userModel.set(value: createdUserModel, isNotify: false);
+      }
+      // Store session data
+      await _storeUserData(userCredential.user);
+
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Registration error: ${e.code} - ${e.message}');
+      throw _convertFirebaseError(e);
+    } catch (e) {
+      debugPrint('Unexpected registration error: $e');
+      throw 'Registration failed. Please try again.';
+    }
+  }
+
 
   Future<bool> logout({
     bool isShowConfirmationDialog = false,
@@ -138,12 +263,12 @@ class AuthenticationController {
         FirebaseAuth.instance
             .signOut()
             .then((value) {
-              MyPrint.printOnConsole("Logged Out User From Firebase Auth");
-            })
+          MyPrint.printOnConsole("Logged Out User From Firebase Auth");
+        })
             .catchError((e, s) {
-              MyPrint.printOnConsole("Error in Logging Out User From Firebase:$e");
-              MyPrint.printOnConsole(s);
-            }),
+          MyPrint.printOnConsole("Error in Logging Out User From Firebase:$e");
+          MyPrint.printOnConsole(s);
+        }),
       ]);
     } catch (e, s) {
       MyPrint.printOnConsole("Error in Logging Out:$e");
@@ -169,59 +294,4 @@ class AuthenticationController {
     return isLoggedOut;
   }
 
-  Future<User?> loginWithEmail({required String email, required String password}) async {
-    try {
-      UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-
-      // Store session data
-
-      return userCredential.user;
-    } on FirebaseAuthException catch (e) {
-      debugPrint('Login error: ${e.code} - ${e.message}');
-      throw _convertFirebaseError(e);
-    } catch (e) {
-      debugPrint('Unexpected login error: $e');
-      throw 'Login failed. Please try again.';
-    }
-  }
-
-  String _convertFirebaseError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-email':
-        return 'Please enter a valid email address';
-      case 'user-disabled':
-        return 'This account has been disabled';
-      case 'user-not-found':
-      case 'wrong-password':
-        return 'Invalid email or password';
-      case 'email-already-in-use':
-        return 'An account already exists with this email';
-      case 'weak-password':
-        return 'Password should be at least 6 characters';
-      case 'operation-not-allowed':
-        return 'Email/password accounts are not enabled';
-      default:
-        return e.message ?? 'An unknown error occurred';
-    }
-  }
-
-  Future<User?> registerWithEmail({required String email, required String password, required String name}) async {
-    try {
-      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
-
-      // Update user profile with name
-      await userCredential.user?.updateDisplayName(name);
-
-      // Store session data
-      // await _storeUserData(userCredential.user);
-
-      return userCredential.user;
-    } on FirebaseAuthException catch (e) {
-      debugPrint('Registration error: ${e.code} - ${e.message}');
-      throw _convertFirebaseError(e);
-    } catch (e) {
-      debugPrint('Unexpected registration error: $e');
-      throw 'Registration failed. Please try again.';
-    }
-  }
 }

@@ -1,6 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:lottie/lottie.dart';
+import 'package:moviesapp/configs/constants.dart';
+import 'package:moviesapp/utils/extensions.dart';
+import 'package:moviesapp/utils/shared_pref_manager.dart';
+
+// import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
@@ -11,6 +17,8 @@ import 'package:moviesapp/backend/authentication/authentication_provider.dart';
 import 'package:moviesapp/backend/navigation/navigation_controller.dart';
 import 'package:moviesapp/backend/navigation/navigation_operation_parameters.dart';
 import 'package:moviesapp/backend/navigation/navigation_type.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../models/user_model/user_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
@@ -83,15 +91,20 @@ class _SplashScreenState extends State<SplashScreen>
     MyPrint.printOnConsole("SplashScreen().checkLogin() called", tag: tag);
 
     NavigationController.isFirst = false;
+    SharedPrefManager prefs = SharedPrefManager();
+
 
     if (context.checkMounted() && context.mounted) {
-      bool isExist = await authenticationController
-          .checkUserWithIdExistOrNotAndIfNotExistThenCreate(
-            userId: authenticationProvider.userId.get(),
-          );
+      bool isExist = await authenticationController.isUserLoggedIn();
+      MyPrint.printOnConsole("isExist:$isExist", tag: tag);
+     if(isExist){
 
-      if (isExist) {
+      if (context.checkMounted() && context.mounted) {
+        String userId = await prefs.getString(SharePreferenceKeys.userIdKey) ?? "";
+        await authenticationController.checkUserWithIdExistOrNotAndIfNotExistThenCreate(userId: userId);
         UserModel? userModel = authenticationProvider.userModel.get();
+
+        MyPrint.printOnConsole("userModel");
 
         if (userModel != null && userModel.name.isEmpty) {
           await NavigationController.navigateToHomeScreen(
@@ -118,7 +131,9 @@ class _SplashScreenState extends State<SplashScreen>
         );
       }
     }
+    }
   }
+  
 
   @override
   void dispose() {
@@ -232,3 +247,4 @@ Widget build(BuildContext context) {
   );
 }
 }
+    
