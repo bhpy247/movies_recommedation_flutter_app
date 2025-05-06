@@ -1,6 +1,11 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:moviesapp/backend/navigation/navigation_arguments.dart';
+import 'package:moviesapp/backend/navigation/navigation_controller.dart';
+import 'package:moviesapp/backend/navigation/navigation_operation_parameters.dart';
+import 'package:moviesapp/backend/navigation/navigation_type.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/movies/movies_provider.dart';
@@ -11,6 +16,7 @@ import '../../home/components/shimmer_grid_item.dart';
 class MoviesTab extends StatelessWidget {
   Function()? onRefresh;
   ScrollController? scrollController;
+
   MoviesTab({super.key, this.onRefresh, this.scrollController});
 
   @override
@@ -55,9 +61,7 @@ class MoviesTab extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 100),
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.8,
-          child: const Center(
-            child: Text("No movies found", style: TextStyle(color: Colors.white)),
-          ),
+          child: const Center(child: Text("No movies found", style: TextStyle(color: Colors.white))),
         ),
       ),
     );
@@ -81,9 +85,7 @@ class MoviesTab extends StatelessWidget {
         itemCount: provider.moviesList.length + (provider.hasMore.get() ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= provider.moviesList.length) {
-            return provider.isLoading.get()
-                ? const Center(child: CircularProgressIndicator())
-                : const SizedBox.shrink();
+            return provider.isLoading.get() ? const Center(child: CircularProgressIndicator()) : const SizedBox.shrink();
           }
 
           return MovieGridItem(movie: provider.moviesList.getList()[index]);
@@ -92,7 +94,6 @@ class MoviesTab extends StatelessWidget {
     );
   }
 }
-
 
 // Keep your existing MovieGridItem and ShimmerGridItem classes
 class MovieGridItem extends StatelessWidget {
@@ -114,18 +115,16 @@ class MovieGridItem extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.25), blurRadius: 8, offset: const Offset(0, 4))],
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
           // Optional: show movie details
+          NavigationController.navigateToMovieDetailScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            arguments: MoviesDetailArguments(movieId: movie.id ?? 0),
+          );
         },
         child: Stack(
           children: [
@@ -135,13 +134,12 @@ class MovieGridItem extends StatelessWidget {
                 Expanded(
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                    child: Image.network(
-                      "https://image.tmdb.org/t/p/w500${movie.posterPath ?? ""}",
+                    child: CachedNetworkImage(
+                      imageUrl: "https://image.tmdb.org/t/p/w500${movie.posterPath ?? ""}",
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey[300],
-                        child: const Center(child: Icon(Icons.broken_image, color: Colors.black)),
-                      ),
+                      errorWidget:
+                          (context, error, stackTrace) =>
+                              Container(color: Colors.grey[300], child: const Center(child: Icon(Icons.broken_image, color: Colors.black))),
                     ),
                   ),
                 ),
@@ -149,11 +147,7 @@ class MovieGridItem extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
                   child: Text(
                     movie.title ?? "No title",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -166,10 +160,7 @@ class MovieGridItem extends StatelessWidget {
                     children: [
                       const Icon(Icons.star, color: Colors.amber, size: 16),
                       const SizedBox(width: 4),
-                      Text(
-                        movie.voteAverage?.toStringAsFixed(1) ?? "0.0",
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
+                      Text(movie.voteAverage?.toStringAsFixed(1) ?? "0.0", style: const TextStyle(color: Colors.white70, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -181,29 +172,26 @@ class MovieGridItem extends StatelessWidget {
               left: 10,
               child: ValueListenableBuilder<bool>(
                 valueListenable: isFavorite,
-                builder: (_, value, __) => GestureDetector(
-                  onTap: () => isFavorite.value = !value,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.black.withOpacity(0.35),
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
-                        ),
-                        child: Icon(
-                          value ? Icons.favorite : Icons.favorite_border,
-                          color: value ? Colors.redAccent : Colors.white,
-                          size: 20,
+                builder:
+                    (_, value, __) => GestureDetector(
+                      onTap: () => isFavorite.value = !value,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.black.withOpacity(0.35),
+                              border: Border.all(color: Colors.white.withOpacity(0.2)),
+                            ),
+                            child: Icon(value ? Icons.favorite : Icons.favorite_border, color: value ? Colors.redAccent : Colors.white, size: 20),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
               ),
             ),
 
@@ -213,29 +201,26 @@ class MovieGridItem extends StatelessWidget {
               right: 10,
               child: ValueListenableBuilder<bool>(
                 valueListenable: isWatchlisted,
-                builder: (_, value, __) => GestureDetector(
-                  onTap: () => isWatchlisted.value = !value,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.black.withOpacity(0.35),
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
-                        ),
-                        child: Icon(
-                          value ? Icons.bookmark : Icons.bookmark_border,
-                          color: value ? Colors.amber : Colors.white,
-                          size: 20,
+                builder:
+                    (_, value, __) => GestureDetector(
+                      onTap: () => isWatchlisted.value = !value,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.black.withOpacity(0.35),
+                              border: Border.all(color: Colors.white.withOpacity(0.2)),
+                            ),
+                            child: Icon(value ? Icons.bookmark : Icons.bookmark_border, color: value ? Colors.amber : Colors.white, size: 20),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
               ),
             ),
           ],

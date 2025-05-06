@@ -1,14 +1,30 @@
+import 'package:moviesapp/models/movies/response_model/movies_detail_response_model.dart';
 import 'package:moviesapp/models/movies/response_model/movies_response_model.dart';
+import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.dart';
 
+import '../../models/movies/response_model/cast_model.dart';
 import '../common/common_provider.dart';
 
 class MoviesProvider extends CommonProvider {
   MoviesProvider() {
     hasMore = CommonProviderPrimitiveParameter<bool>(value: true, notify: notify);
     isLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
+    isSimilarLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
     isFirstTimeLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
     currentPage = CommonProviderPrimitiveParameter<int>(value: 1, notify: notify);
-    moviesList =  CommonProviderListParameter(list: [], notify: notify);
+    moviesList = CommonProviderListParameter(list: [], notify: notify);
+
+    //------------Movie Details Variable-------------
+    movieDetailLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
+    error = CommonProviderPrimitiveParameter<String>(value: "", notify: notify);
+    movieDetail = CommonProviderPrimitiveParameter<MovieDetailsModel?>(value: null, notify: notify);
+
+    //-------cast and similar movies variables---------
+
+    movieCast = CommonProviderListParameter(list: [], notify: notify);
+    similarMovies = CommonProviderListParameter(list: [], notify: notify);
+    isSimilarLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
+
   }
 
   late CommonProviderListParameter<MoviesList> moviesList;
@@ -17,12 +33,54 @@ class MoviesProvider extends CommonProvider {
   late CommonProviderPrimitiveParameter<bool> isFirstTimeLoading;
   late CommonProviderPrimitiveParameter<int> currentPage;
 
+  //--------Movie Details Variable----------
+
+  late CommonProviderPrimitiveParameter<bool> movieDetailLoading;
+  late CommonProviderPrimitiveParameter<String> error;
+  late CommonProviderPrimitiveParameter<MovieDetailsModel?> movieDetail;
+
+  //-------cast and similar movies variables---------
+  late CommonProviderListParameter<Cast> movieCast;
+  late CommonProviderPrimitiveParameter<bool> isSimilarLoading;
+
+  late CommonProviderListParameter<SimilarMovieList> similarMovies;
+
+
   void resetPagination() {
     isFirstTimeLoading = CommonProviderPrimitiveParameter<bool>(value: true, notify: notify);
     isLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
     currentPage = CommonProviderPrimitiveParameter<int>(value: 1, notify: notify);
-    moviesList =  CommonProviderListParameter(list: [], notify: notify);
+    moviesList = CommonProviderListParameter(list: [], notify: notify);
     hasMore = CommonProviderPrimitiveParameter<bool>(value: true, notify: notify);
+
+    //--------Movie Details Variable----------
+
+    movieDetailLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
+    error = CommonProviderPrimitiveParameter<String>(value: "", notify: notify);
+    movieDetail = CommonProviderPrimitiveParameter<MovieDetailsModel?>(value: null, notify: notify);
+
+    //-------cast and similar movies variables---------
+    movieCast = CommonProviderListParameter(list: [], notify: notify);
+    similarMovies = CommonProviderListParameter(list: [], notify: notify);
+    isSimilarLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
+
+
+    notifyListeners();
+  }
+
+  // Add these methods:
+  void setMovieCredits(List<Cast> credits) {
+    movieCast.setList(list: credits);
+    notifyListeners();
+  }
+
+  void setSimilarMovies(List<SimilarMovieList> movies) {
+    similarMovies.setList(list: movies);
+    notifyListeners();
+  }
+
+  void clearSimilarMovies() {
+    similarMovies.setList(list: []);
     notifyListeners();
   }
 

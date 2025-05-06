@@ -153,7 +153,7 @@ class AuthenticationController {
     String userName =prefs.getString(SharePreferenceKeys.authenticatedUserName) ?? "";
 
 
-    UserModel userModel =  UserModel(email: email,name: name,id: userID,createdTime: Timestamp.now());
+    UserModel userModel =  UserModel(email: email,displayName: name,uid: userID,createdTime: Timestamp.now());
 
     return userModel;
   }
@@ -169,7 +169,7 @@ class AuthenticationController {
     await prefs.setString(SharePreferenceKeys.authenticatedUserName, user.email ?? "");
     MyPrint.printOnConsole("in store data ${prefs.getString("key")}");
     
-    authenticationProvider.userModel.set(value: UserModel(id: user.uid, name: user.displayName ??"", email: user.email ?? ""));
+    authenticationProvider.userModel.set(value: UserModel(uid: user.uid, displayName: user.displayName ??"", email: user.email ?? ""));
     authenticationProvider.userId.set(value: user.uid);
 
   }
@@ -203,7 +203,7 @@ class AuthenticationController {
       String userId =  userCredential.user?.uid ?? "";
       String userEmail = userCredential.user?.email ?? "";
 
-      UserModel createdUserModel = UserModel(id: userId, email: userEmail, name:name);
+      UserModel createdUserModel = UserModel(uid: userId, email: userEmail, displayName:name);
       bool isCreated = await userController.createNewUser(userModel: createdUserModel);
       MyPrint.printOnConsole("isUserCreated:'$isCreated'",);
 

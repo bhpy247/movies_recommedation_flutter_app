@@ -106,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen>
 
         MyPrint.printOnConsole("userModel");
 
-        if (userModel != null && userModel.name.isEmpty) {
+        if (userModel != null && userModel.displayName.isEmpty) {
           await NavigationController.navigateToHomeScreen(
             navigationOperationParameters: NavigationOperationParameters(
               context: context,

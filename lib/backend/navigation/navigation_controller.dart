@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/navigation/navigation_arguments.dart';
 import 'package:moviesapp/views/authentication/screens/sign_up_screen.dart';
+import 'package:moviesapp/views/movies/screen/movie_details.dart';
 
 import '../../utils/my_print.dart';
 
@@ -91,12 +92,12 @@ class NavigationController {
           break;
         }
 
-      // case CreateAccountScreen.routeName:
-      //   {
-      //     page = parseCreateAccountScreen(settings: settings);
-      //     break;
-      //   }
-      //
+      case MovieDetailsScreen.routeName:
+        {
+          page = parseMovieDetailsScreen(settings: settings);
+          break;
+        }
+
       case SignupScreen.routeName:
         {
           page = parseSignUpScreen(settings: settings);
@@ -177,14 +178,14 @@ class NavigationController {
   }
 
 
-  // static Widget? parseOtpScreen({required RouteSettings settings}) {
-  //   dynamic argument = settings.arguments;
-  //   if (argument is OtpScreenNavigationArguments) {
-  //     return OtpScreen(mobile: argument.mobile);
-  //   } else {
-  //     return null;
-  //   }
-  // }
+  static Widget? parseMovieDetailsScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is MoviesDetailArguments) {
+      return MovieDetailsScreen(arguments: argument);
+    } else {
+      return null;
+    }
+  }
 
   //endregion
 
@@ -221,14 +222,14 @@ class NavigationController {
     ));
   }
 
-// static Future<dynamic> navigateGallerySinglePhotoScreen({
-//   required NavigationOperationParameters navigationOperationParameters,
-//   required GallerySinglePhotoNavigationArguments arguments,
-// }) {
-//   return NavigationOperation.navigate(
-//     navigationOperationParameters: navigationOperationParameters.copyWith(routeName: GallerySinglePhoto.routeName, arguments: arguments),
-//   );
-// }
+static Future<dynamic> navigateToMovieDetailScreen({
+  required NavigationOperationParameters navigationOperationParameters,
+  required MoviesDetailArguments arguments,
+}) {
+  return NavigationOperation.navigate(
+    navigationOperationParameters: navigationOperationParameters.copyWith(routeName: MovieDetailsScreen.routeName, arguments: arguments),
+  );
+}
 
 //endregion
 }
