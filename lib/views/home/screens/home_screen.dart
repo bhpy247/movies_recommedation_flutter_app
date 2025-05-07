@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/authentication/authentication_controller.dart';
 import 'package:moviesapp/backend/navigation/navigation_controller.dart';
 import 'package:moviesapp/views/chat/screens/chat_screen.dart';
+import 'package:moviesapp/views/chat/screens/main_chat_screen.dart';
 import 'package:moviesapp/views/profile/screens/profile_screen.dart';
 import 'package:moviesapp/views/search/screens/search_screen.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,7 @@ import 'package:moviesapp/models/movies/response_model/movies_response_model.dar
 import 'package:moviesapp/configs/app_colors.dart';
 
 import '../../movies/screen/movies_screen.dart';
-import '../../recommend/screens/recommend_screen.dart';
+import '../../movies/screen/recommended_screen.dart';
 import '../components/shimmer_grid_item.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         scrollController: _scrollController,
       ),
-      const ChatScreen(),
+      const MainChatScreen(),
       const SearchScreenTab(),
       const ProfileScreen(),
       const RecommendScreen(),
@@ -133,9 +134,14 @@ class _HomeScreenState extends State<HomeScreen> {
         extendBody: true,
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.black,
-        appBar: AppBar(
+        appBar: [0,2,3].contains(_currentIndex) ? AppBar(
           backgroundColor: Colors.black.withOpacity(0.2),
           elevation: 0,
+          actions: [
+            IconButton(onPressed: () async {
+              await AuthenticationController(authenticationProvider: context.read()).logout(isShowConfirmationDialog: true,isNavigateToLogin: true);
+            }, icon: Icon(Icons.logout))
+          ],
           centerTitle: true,
           title: const Text(
             "MovieCon",
@@ -146,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.white,
             ),
           ),
-        ),
+        ) : null,
         body: Stack(
           children: [
             Container(

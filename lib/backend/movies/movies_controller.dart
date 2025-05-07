@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:moviesapp/backend/authentication/authentication_provider.dart';
 import 'package:moviesapp/backend/movies/movies_provider.dart';
 import 'package:moviesapp/models/movies/response_model/movies_detail_response_model.dart';
 import 'package:moviesapp/models/movies/response_model/movies_response_model.dart';
@@ -80,33 +81,31 @@ class MoviesController {
     try {
       moviesProvider.movieDetailLoading.set(value: true);
 
-      final DataResponseModel<MovieDetailsModel> response =
-      await moviesRepository.getMovieDetails(movieId);
+      final DataResponseModel<MovieDetailsModel> response = await moviesRepository.getMovieDetails(movieId);
 
       if (response.data == null) {
-        moviesProvider.error.set(value:'Failed to load movie details');
+        moviesProvider.error.set(value: 'Failed to load movie details');
         return;
       }
 
       MyPrint.printOnConsole("MovieDetailResponse : ${response.data}");
 
       if (response.statusCode == 200) {
-        moviesProvider.movieDetail.set(value:MovieDetailsModel.fromJson(response.data?.toJson() ?? {}));
+        moviesProvider.movieDetail.set(value: MovieDetailsModel.fromJson(response.data?.toJson() ?? {}));
       } else {
         moviesProvider.error.set(value: response.appErrorModel?.message ?? 'Unknown error occurred');
       }
     } catch (e, s) {
       MyPrint.printOnConsole("Error in getMovieDetails: $e");
       MyPrint.printOnConsole(s);
-      moviesProvider.error.set(value:'An error occurred while loading movie details');
+      moviesProvider.error.set(value: 'An error occurred while loading movie details');
     } finally {
-      moviesProvider.movieDetailLoading.set(value:false);
+      moviesProvider.movieDetailLoading.set(value: false);
     }
   }
 
-
   Future<void> fetchMovieCredits(int movieId) async {
-    moviesProvider.isLoading.set(value:true);
+    moviesProvider.isLoading.set(value: true);
 
     final response = await moviesRepository.getMovieCredits(movieId);
 
@@ -115,24 +114,73 @@ class MoviesController {
       // You might need to extend MoviesProvider to handle credits
       moviesProvider.setMovieCredits(response.data!.cast);
     } else {
-      moviesProvider.error.set(value:response.appErrorModel?.message ?? "Failed to load credits");
+      moviesProvider.error.set(value: response.appErrorModel?.message ?? "Failed to load credits");
     }
 
-    moviesProvider.isLoading.set(value:false);
+    moviesProvider.isLoading.set(value: false);
   }
 
   Future<void> fetchSimilarMovies(int movieId) async {
-    moviesProvider.isSimilarLoading.set(value:true);
+    moviesProvider.isSimilarLoading.set(value: true);
 
     final response = await moviesRepository.getSimilarMovies(movieId);
 
     if (response.statusCode == 200 && response.data != null) {
       moviesProvider.setSimilarMovies(response.data?.results ?? []);
     } else {
-      moviesProvider.error.set(value:response.appErrorModel?.message ?? "Failed to load similar movies");
+      moviesProvider.error.set(value: response.appErrorModel?.message ?? "Failed to load similar movies");
     }
 
-    moviesProvider.isSimilarLoading.set(value:false);
+    moviesProvider.isSimilarLoading.set(value: false);
   }
 
+  // movies_controller.dart (add these to the existing class)
+  Future<void> fetchRecommendations(AuthenticationProvider authProvider) async {
+
+    MyPrint.printOnConsole("Fetch recommendation  :");
+
+    try {
+      // Get user favorites
+      final favorites = authProvider.userModel.get()?.favorites ?? [];
+      final name = authProvider.userModel.get()?.displayName ?? [];
+      MyPrint.printOnConsole("Fetch recommendation  : $favorites ,$name");
+
+
+      if (favorites.length < 5) {
+        moviesProvider.recommendationError.set(value: true);
+        return;
+      }
+
+      moviesProvider.recommendationError.set(value: false);
+
+      // Get random 5 favorites
+      final randomFavorites = _getRandomElements(favorites, 5);
+
+      List<MoviesList> recommendations = [];
+
+      for (final movieId in randomFavorites) {
+        final response = await _moviesRepository.getRecommendations(movieId);
+
+        if (response.statusCode == 200 && response.data != null) {
+          MyPrint.printOnConsole("Lengthhhh: ${response.data?.moviesList?.length}");
+          for (final movie in response.data?.moviesList ?? []) {
+            if (!recommendations.any((m) => m.id == movie.id) && !favorites.contains(movie.id)) {
+              recommendations.add(movie);
+            }
+          }
+        }
+      }
+
+      moviesProvider.setRecommendations(recommendations);
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in fetchRecommendations: $e");
+      MyPrint.printOnConsole(s);
+      moviesProvider.error.set(value: 'Failed to load recommendations');
+    }
+  }
+
+  List _getRandomElements<T>(List<T> list, int count) {
+    final shuffled = List.from(list)..shuffle();
+    return shuffled.take(count).toList();
+  }
 }

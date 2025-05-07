@@ -33,8 +33,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _opacityAnimation;
   late final Animation<double> _scaleAnimation;
@@ -46,24 +45,17 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
+    _controller = AnimationController(duration: const Duration(milliseconds: 1500), vsync: this);
 
-    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0, 0.5, curve: Curves.easeIn),
-      ),
-    );
+    _opacityAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: const Interval(0, 0.5, curve: Curves.easeIn)));
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.5, 1, curve: Curves.elasticOut),
-      ),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: const Interval(0.5, 1, curve: Curves.elasticOut)));
 
     _videoController = VideoPlayerController.asset("assets/avengers.mp4")
       ..initialize().then((_) {
@@ -75,9 +67,7 @@ class _SplashScreenState extends State<SplashScreen>
       });
 
     authenticationProvider = context.read<AuthenticationProvider>();
-    authenticationController = AuthenticationController(
-      authenticationProvider: authenticationProvider,
-    );
+    authenticationController = AuthenticationController(authenticationProvider: authenticationProvider);
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       NavigationController.isFirst = false;
@@ -93,47 +83,35 @@ class _SplashScreenState extends State<SplashScreen>
     NavigationController.isFirst = false;
     SharedPrefManager prefs = SharedPrefManager();
 
-
     if (context.checkMounted() && context.mounted) {
       bool isExist = await authenticationController.isUserLoggedIn();
       MyPrint.printOnConsole("isExist:$isExist", tag: tag);
-     if(isExist){
+      if (isExist) {
+        if (context.checkMounted() && context.mounted) {
+          String userId = await prefs.getString(SharePreferenceKeys.userIdKey) ?? "";
+          await authenticationController.checkUserWithIdExistOrNotAndIfNotExistThenCreate(userId: userId);
+          UserModel? userModel = authenticationProvider.userModel.get();
 
-      if (context.checkMounted() && context.mounted) {
-        String userId = await prefs.getString(SharePreferenceKeys.userIdKey) ?? "";
-        await authenticationController.checkUserWithIdExistOrNotAndIfNotExistThenCreate(userId: userId);
-        UserModel? userModel = authenticationProvider.userModel.get();
+          MyPrint.printOnConsole("userModel ${userModel?.toJson()}");
 
-        MyPrint.printOnConsole("userModel");
+          if (userModel != null && userModel.displayName.isEmpty) {
+            await NavigationController.navigateToLoginScreen(
+              navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamedAndRemoveUntil),
+            );
+            return;
+          }
 
-        if (userModel != null && userModel.displayName.isEmpty) {
-          await NavigationController.navigateToHomeScreen(
-            navigationOperationParameters: NavigationOperationParameters(
-              context: context,
-              navigationType: NavigationType.pushNamedAndRemoveUntil,
-            ),
+          NavigationController.navigateToHomeScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamedAndRemoveUntil),
           );
-          return;
         }
-
-        NavigationController.navigateToHomeScreen(
-          navigationOperationParameters: NavigationOperationParameters(
-            context: context,
-            navigationType: NavigationType.pushNamedAndRemoveUntil,
-          ),
-        );
       } else {
-        await NavigationController.navigateToHomeScreen(
-          navigationOperationParameters: NavigationOperationParameters(
-            context: context,
-            navigationType: NavigationType.pushNamedAndRemoveUntil,
-          ),
+        await NavigationController.navigateToLoginScreen(
+          navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamedAndRemoveUntil),
         );
       }
     }
-    }
   }
-  
 
   @override
   void dispose() {
@@ -142,109 +120,87 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-@override
-Widget build(BuildContext context) {
-  final Size screenSize = MediaQuery.of(context).size;
-  final double screenWidth = screenSize.width;
-  final double screenHeight = screenSize.height;
+  @override
+  Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
+    final double screenWidth = screenSize.width;
+    final double screenHeight = screenSize.height;
 
-  return Scaffold(
-    backgroundColor: AuthTheme.primaryColor,
-    body: _videoController.value.isInitialized
-        ? Stack(
-            fit: StackFit.expand,
-            children: [
-              FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  width: _videoController.value.size.width,
-                  height: _videoController.value.size.height,
-                  child: VideoPlayer(_videoController),
-                ),
-              ),
-              Container(color: Colors.black.withOpacity(0.5)),
-
-              // Logo (responsive)
-              Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(top: screenHeight * 0.18),
-                  child: AnimatedBuilder(
-                    animation: _controller,
-                    builder: (_, __) {
-                      return Opacity(
-                        opacity: _opacityAnimation.value,
-                        child: Transform.scale(
-                          scale: _scaleAnimation.value,
-                          child: Image.asset(
-                            "assets/logo.png",
-                            width: screenWidth * 0.6,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              // Get Started button (responsive)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: screenHeight * 0.08),
-                  child: GestureDetector(
-                    onTap: () => checkLogin(),
-                    child: AnimatedBuilder(
-                      animation: _controller,
-                      builder: (_, __) {
-                        return Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.2,
-                            vertical: screenHeight * 0.02,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: Styles.primaryColor.withOpacity(
-                                  _opacityAnimation.value),
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Styles.primaryColor.withOpacity(
-                                    _opacityAnimation.value * 0.5),
-                                blurRadius: 12,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                            color: Colors.transparent,
-                          ),
-                          child: Text(
-                            "Get Started",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: screenWidth * 0.045,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(
-                                  color: Styles.primaryColor.withOpacity(
-                                      _opacityAnimation.value * 0.5),
-                                  blurRadius: 10,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+    return Scaffold(
+      backgroundColor: AuthTheme.primaryColor,
+      body:
+          _videoController.value.isInitialized
+              ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: _videoController.value.size.width,
+                      height: _videoController.value.size.height,
+                      child: VideoPlayer(_videoController),
                     ),
                   ),
-                ),
-              ),
-            ],
-          )
-        : const Center(child: CircularProgressIndicator()),
-  );
+                  Container(color: Colors.black.withOpacity(0.5)),
+
+                  // Logo (responsive)
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: screenHeight * 0.18),
+                      child: AnimatedBuilder(
+                        animation: _controller,
+                        builder: (_, __) {
+                          return Opacity(
+                            opacity: _opacityAnimation.value,
+                            child: Transform.scale(
+                              scale: _scaleAnimation.value,
+                              child: Image.asset("assets/logo.png", width: screenWidth * 0.6, fit: BoxFit.contain),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Get Started button (responsive)
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: screenHeight * 0.08),
+                      child: GestureDetector(
+                        onTap: () => checkLogin(),
+                        child: AnimatedBuilder(
+                          animation: _controller,
+                          builder: (_, __) {
+                            return Container(
+                              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.2, vertical: screenHeight * 0.02),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(color: Styles.primaryColor.withOpacity(_opacityAnimation.value), width: 2),
+                                boxShadow: [
+                                  BoxShadow(color: Styles.primaryColor.withOpacity(_opacityAnimation.value * 0.5), blurRadius: 12, spreadRadius: 1),
+                                ],
+                                color: Colors.transparent,
+                              ),
+                              child: Text(
+                                "Get Started",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: screenWidth * 0.045,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [Shadow(color: Styles.primaryColor.withOpacity(_opacityAnimation.value * 0.5), blurRadius: 10)],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+              : const Center(child: CircularProgressIndicator()),
+    );
+  }
 }
-}
-    

@@ -25,6 +25,11 @@ class MoviesProvider extends CommonProvider {
     similarMovies = CommonProviderListParameter(list: [], notify: notify);
     isSimilarLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
 
+    // In the constructor:
+    recommendations = CommonProviderListParameter(list: [], notify: notify);
+    recommendationError = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
+
+
   }
 
   late CommonProviderListParameter<MoviesList> moviesList;
@@ -45,6 +50,9 @@ class MoviesProvider extends CommonProvider {
 
   late CommonProviderListParameter<SimilarMovieList> similarMovies;
 
+  late CommonProviderListParameter<MoviesList> recommendations;
+  late CommonProviderPrimitiveParameter<bool> recommendationError;
+
 
   void resetPagination() {
     isFirstTimeLoading = CommonProviderPrimitiveParameter<bool>(value: true, notify: notify);
@@ -63,6 +71,11 @@ class MoviesProvider extends CommonProvider {
     movieCast = CommonProviderListParameter(list: [], notify: notify);
     similarMovies = CommonProviderListParameter(list: [], notify: notify);
     isSimilarLoading = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
+
+    // In resetPagination:
+    recommendations = CommonProviderListParameter(list: [], notify: notify);
+    recommendationError = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
+
 
 
     notifyListeners();
@@ -88,6 +101,17 @@ class MoviesProvider extends CommonProvider {
     List<MoviesList> currentMovieList = moviesList.getList();
     currentMovieList.addAll(newMovies);
     moviesList.setList(list: currentMovieList);
+    notifyListeners();
+  }
+
+  // Add this method:
+  void setRecommendations(List<MoviesList> recommendedMovies) {
+    recommendations.setList(list: recommendedMovies);
+    notifyListeners();
+  }
+
+  void setRecommendationError(bool value) {
+    recommendationError.set(value: value);
     notifyListeners();
   }
 }

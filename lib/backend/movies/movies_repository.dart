@@ -92,5 +92,22 @@ class MoviesRepository {
     return apiResponseModel;
   }
 
+  // movies_repository.dart (add this to the existing class)
+  Future<DataResponseModel<MoviesResponseModel>> getRecommendations(int movieId) async {
+    final apiEndpoints = apiController.apiEndpoints;
+
+    final apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.moviesModel,
+      url: apiEndpoints.apiGetRecommendations(movieId),
+    );
+
+    final apiResponseModel = await apiController.callApi<MoviesResponseModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
 
 }

@@ -65,79 +65,6 @@ class UserRepository {
     return isCreated;
   }
 
-  // Future<bool> updateUserProfileData({required ProfileUpdateRequestModel requestModel}) async {
-  //   String tag = MyUtils.getNewId();
-  //   MyPrint.printOnConsole("UserRepository().updateUserProfileData() called with requestModel:'$requestModel'", tag: tag);
-  //
-  //   if (requestModel.id.isEmpty) {
-  //     MyPrint.printOnConsole("Returning from UserRepository().updateUserProfileData() because userId is empty", tag: tag);
-  //     return false;
-  //   }
-  //
-  //   bool isUpdated = false;
-  //
-  //   try {
-  //     NewDocumentDataModel newDocumentDataModel = await MyUtils.getNewDocIdAndTimeStamp(isGetTimeStamp: true);
-  //     MyPrint.printOnConsole("newDocumentDataModel:'$newDocumentDataModel'", tag: tag);
-  //
-  //     requestModel.updatedTime = newDocumentDataModel.timestamp;
-  //
-  //     MyPrint.printOnConsole("Final requestModel:'$requestModel'", tag: tag);
-  //
-  //     await FirebaseNodes.userDocumentReference(userId: requestModel.id).update(requestModel.toMap());
-  //     isUpdated = true;
-  //   } catch (e, s) {
-  //     MyPrint.printOnConsole("Error in Creating User Document in Firestore in UserRepository().updateUserProfileData():$e", tag: tag);
-  //     MyPrint.printOnConsole(s, tag: tag);
-  //   }
-  //
-  //   MyPrint.printOnConsole("isUpdated:'$isUpdated'", tag: tag);
-  //
-  //   return isUpdated;
-  // }
-
-  Future<bool> updateLastChapterPlayedInCourseForUser({required String userId, required String courseId, required String chapterId}) async {
-    String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("UserRepository().updateLastChapterPlayedInCourseForUser() called for userId:'$userId', courseId:'$courseId', chapterId:'$chapterId'", tag: tag);
-
-    bool isUpdated = false;
-
-    try {
-      await FirebaseNodes.userDocumentReference(userId: userId).update({
-        "myCoursesData.$courseId.lastPlayedChapterId": chapterId,
-      });
-      isUpdated = true;
-    } catch (e, s) {
-      MyPrint.printOnConsole("Error in UserRepository().updateLastChapterPlayedInCourseForUser():$e", tag: tag);
-      MyPrint.printOnConsole(s, tag: tag);
-    }
-
-    MyPrint.printOnConsole("isUpdated:$isUpdated", tag: tag);
-
-    return isUpdated;
-  }
-
-  Future<bool> updateNotificationToken({required String userId, required String token}) async {
-    String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("UserRepository().updateNotificationToken() called for userId:'$userId', token:'$token'", tag: tag);
-
-    bool isUpdated = false;
-
-    try {
-      await FirebaseNodes.userDocumentReference(userId: userId).update({
-        "notificationToken": token,
-      });
-      isUpdated = true;
-    } catch (e, s) {
-      MyPrint.printOnConsole("Error in UserRepository().updateNotificationToken():$e", tag: tag);
-      MyPrint.printOnConsole(s, tag: tag);
-    }
-
-    MyPrint.printOnConsole("isUpdated:$isUpdated", tag: tag);
-
-    return isUpdated;
-  }
-
   Future<bool> deleteUserAccount({required String userId}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("UserRepository().deleteUserAccount() called with userId:'$userId'", tag: tag);
@@ -162,39 +89,42 @@ class UserRepository {
     return isDeleted;
   }
 
-  Future<bool> updateUserCourseValidityData({required String userId, required Map<String, int> courseValidityDaya}) async {
+  Future<bool> updateUserField({
+    required String userId,
+    required String field,
+    required dynamic value,
+  }) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("UserRepository().updateUserCourseValidityData() called with userId:'$userId', courseValidityDaya:'$courseValidityDaya'", tag: tag);
+    MyPrint.printOnConsole(
+      "UserRepository().updateUserField() called with userId:'$userId', field:'$field', value:'$value'",
+      tag: tag,
+    );
 
-    courseValidityDaya.removeWhere((key, value) => key.isEmpty);
-
-    if(userId.isEmpty) {
-      MyPrint.printOnConsole("Returning from UserRepository().updateUserCourseValidityData() because userId is empty", tag: tag);
-      return false;
-    }
-    else if(courseValidityDaya.isEmpty) {
-      MyPrint.printOnConsole("Returning from UserRepository().updateUserCourseValidityData() because courseValidityDaya is empty", tag: tag);
+    if (userId.isEmpty) {
+      MyPrint.printOnConsole(
+        "Returning from UserRepository().updateUserField() because userId is empty",
+        tag: tag,
+      );
       return false;
     }
 
     bool isUpdated = false;
 
     try {
-      Map<String, dynamic> updateMap = Map<String, dynamic>.from(courseValidityDaya.map((key, value) {
-        return MapEntry<String, dynamic>("myCoursesData.$key.validityInDays", value);
-      }));
-      updateMap["lastExpiryChecked"] = FieldValue.serverTimestamp();
-
-      await FirebaseNodes.userDocumentReference(userId: userId).update(updateMap);
+      await FirebaseNodes.userDocumentReference(userId: userId).update({
+        field: value,
+      });
       isUpdated = true;
-    }
-    catch(e, s) {
-      MyPrint.printOnConsole("Error in Creating User Document in Firestore in UserRepository().updateUserCourseValidityData():$e", tag: tag);
+    } catch (e, s) {
+      MyPrint.printOnConsole(
+        "Error in UserRepository().updateUserField():$e",
+        tag: tag,
+      );
       MyPrint.printOnConsole(s, tag: tag);
     }
 
-    MyPrint.printOnConsole("isUpdated:'$isUpdated'", tag: tag);
-
+    MyPrint.printOnConsole("isUpdated:$isUpdated", tag: tag);
     return isUpdated;
   }
+
 }

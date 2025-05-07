@@ -2,10 +2,12 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:moviesapp/backend/authentication/authentication_provider.dart';
 import 'package:moviesapp/backend/navigation/navigation_arguments.dart';
 import 'package:moviesapp/backend/navigation/navigation_controller.dart';
 import 'package:moviesapp/backend/navigation/navigation_operation_parameters.dart';
 import 'package:moviesapp/backend/navigation/navigation_type.dart';
+import 'package:moviesapp/backend/user/user_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/movies/movies_provider.dart';
@@ -96,15 +98,58 @@ class MoviesTab extends StatelessWidget {
 }
 
 // Keep your existing MovieGridItem and ShimmerGridItem classes
-class MovieGridItem extends StatelessWidget {
+class MovieGridItem extends StatefulWidget {
   final MoviesList movie;
 
   const MovieGridItem({super.key, required this.movie});
 
   @override
+  State<MovieGridItem> createState() => _MovieGridItemState();
+}
+
+class _MovieGridItemState extends State<MovieGridItem> {
+  late ValueNotifier<bool> isFavorite;
+  late ValueNotifier<bool> isWatchlisted;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = Provider.of<AuthenticationProvider>(context, listen: false).userModel.get();
+    isFavorite = ValueNotifier(user?.favorites.contains(widget.movie.id) ?? false);
+    isWatchlisted = ValueNotifier(user?.watchlist.contains(widget.movie.id) ?? false);
+  }
+
+  void toggleFavorite() async {
+    final authenticationProvider = context.read<AuthenticationProvider>();
+    final userController = UserController(authenticationProvider: authenticationProvider);
+    final movieId = widget.movie.id ?? 0;
+
+    if (isFavorite.value) {
+      bool success = await userController.removeFromFavorites(context, movieId);
+      if (success) isFavorite.value = false;
+    } else {
+      bool success = await userController.addToFavorites(context, movieId);
+      if (success) isFavorite.value = true;
+    }
+  }
+
+  void toggleWatchlist() async {
+    final authenticationProvider = context.read<AuthenticationProvider>();
+    final userController = UserController(authenticationProvider: authenticationProvider);
+    final movieId = widget.movie.id ?? 0;
+
+    if (isWatchlisted.value) {
+      bool success = await userController.removeFromWatchlist(context, movieId);
+      if (success) isWatchlisted.value = false;
+    } else {
+      bool success = await userController.addToWatchlist(context, movieId);
+      if (success) isWatchlisted.value = true;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ValueNotifier<bool> isFavorite = ValueNotifier(false);
-    final ValueNotifier<bool> isWatchlisted = ValueNotifier(false);
+    final movie = widget.movie;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
@@ -120,9 +165,11 @@ class MovieGridItem extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          // Optional: show movie details
           NavigationController.navigateToMovieDetailScreen(
-            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
             arguments: MoviesDetailArguments(movieId: movie.id ?? 0),
           );
         },
@@ -137,9 +184,10 @@ class MovieGridItem extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: "https://image.tmdb.org/t/p/w500${movie.posterPath ?? ""}",
                       fit: BoxFit.cover,
-                      errorWidget:
-                          (context, error, stackTrace) =>
-                              Container(color: Colors.grey[300], child: const Center(child: Icon(Icons.broken_image, color: Colors.black))),
+                      errorWidget: (context, error, stackTrace) => Container(
+                        color: Colors.grey[300],
+                        child: const Center(child: Icon(Icons.broken_image, color: Colors.black)),
+                      ),
                     ),
                   ),
                 ),
@@ -166,61 +214,36 @@ class MovieGridItem extends StatelessWidget {
                 ),
               ],
             ),
-            // Favorite toggle (glassmorphic)
+
+            // Favorite toggle
             Positioned(
               top: 10,
               left: 10,
               child: ValueListenableBuilder<bool>(
                 valueListenable: isFavorite,
-                builder:
-                    (_, value, __) => GestureDetector(
-                      onTap: () => isFavorite.value = !value,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.black.withOpacity(0.35),
-                              border: Border.all(color: Colors.white.withOpacity(0.2)),
-                            ),
-                            child: Icon(value ? Icons.favorite : Icons.favorite_border, color: value ? Colors.redAccent : Colors.white, size: 20),
-                          ),
-                        ),
-                      ),
-                    ),
+                builder: (_, value, __) => GestureDetector(
+                  onTap: toggleFavorite,
+                  child: _buildGlassIcon(
+                    icon: value ? Icons.favorite : Icons.favorite_border,
+                    color: value ? Colors.redAccent : Colors.white,
+                  ),
+                ),
               ),
             ),
 
-            // Watchlist toggle (glassmorphic)
+            // Watchlist toggle
             Positioned(
               top: 10,
               right: 10,
               child: ValueListenableBuilder<bool>(
                 valueListenable: isWatchlisted,
-                builder:
-                    (_, value, __) => GestureDetector(
-                      onTap: () => isWatchlisted.value = !value,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.black.withOpacity(0.35),
-                              border: Border.all(color: Colors.white.withOpacity(0.2)),
-                            ),
-                            child: Icon(value ? Icons.bookmark : Icons.bookmark_border, color: value ? Colors.amber : Colors.white, size: 20),
-                          ),
-                        ),
-                      ),
-                    ),
+                builder: (_, value, __) => GestureDetector(
+                  onTap: toggleWatchlist,
+                  child: _buildGlassIcon(
+                    icon: value ? Icons.bookmark : Icons.bookmark_border,
+                    color: value ? Colors.amber : Colors.white,
+                  ),
+                ),
               ),
             ),
           ],
@@ -228,4 +251,24 @@ class MovieGridItem extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildGlassIcon({required IconData icon, required Color color}) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.black.withOpacity(0.35),
+            border: Border.all(color: Colors.white.withOpacity(0.2)),
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+      ),
+    );
+  }
 }
+
