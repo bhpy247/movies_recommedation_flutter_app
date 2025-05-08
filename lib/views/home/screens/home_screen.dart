@@ -1,11 +1,13 @@
+import 'dart:ui';
+
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/authentication/authentication_controller.dart';
 import 'package:moviesapp/backend/navigation/navigation_controller.dart';
 import 'package:moviesapp/views/chat/screens/chat_screen.dart';
+import 'package:moviesapp/views/mystuff/screens/mystuff_screen.dart';
 import 'package:moviesapp/views/chat/screens/main_chat_screen.dart';
 import 'package:moviesapp/views/profile/screens/profile_screen.dart';
-import 'package:moviesapp/views/search/screens/search_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:moviesapp/backend/movies/movies_controller.dart';
 import 'package:moviesapp/backend/movies/movies_provider.dart';
@@ -51,8 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         scrollController: _scrollController,
       ),
-      const MainChatScreen(),
-      const SearchScreenTab(),
+      const ChatScreen(),
+      const MystuffScreen(),
       const ProfileScreen(),
       const RecommendScreen(),
     ];
@@ -65,7 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
       final provider = context.read<MoviesProvider>();
       if (!provider.isLoading.get() && provider.hasMore.get()) {
         _moviesController.getMoviesList(context, isRefresh: false);
@@ -92,16 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
           content: Text('Are you sure you want to logout?'),
           actions: <Widget>[
             TextButton(
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: Text('Cancel', style: TextStyle(color: Colors.grey)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             ElevatedButton(
-              child: Text('Logout',style: TextStyle(color: Colors.white),),
+              child: Text('Logout', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFD24DFF), // Button color
               ),
@@ -123,9 +123,26 @@ class _HomeScreenState extends State<HomeScreen> {
   final _iconList = <IconData>[
     Icons.home,
     Icons.chat_bubble,
-    Icons.search,
+    Icons.inventory_2,
     Icons.person,
   ];
+
+  String _getAppBarTitle(int index) {
+    switch (index) {
+      case 0:
+        return "MovieCon";
+      case 1:
+        return "Chat";
+      case 2:
+        return "My Stuff";
+      case 3:
+        return "Profile";
+      case 4:
+        return "Recommended";
+      default:
+        return "MovieCon";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,9 +160,9 @@ class _HomeScreenState extends State<HomeScreen> {
             }, icon: Icon(Icons.logout))
           ],
           centerTitle: true,
-          title: const Text(
-            "MovieCon",
-            style: TextStyle(
+          title: Text(
+            _getAppBarTitle(_currentIndex),
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.2,
@@ -158,13 +175,52 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF0F0C29), Color(0xFF302B63), Color(0xFF24243E)],
+                  colors: [
+                    // Color(0xFF0F0C29),
+                    // Color(0xFF302B63),
+                    // Color(0xFF24243E),
+                  ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
               ),
             ),
-            _tabs[_currentIndex],
+            if (_currentIndex == 0)
+              Positioned(
+                top: 20,
+                left: 20,
+                right: 20,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.07),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: TextField(
+                    style: const TextStyle(color: Colors.white),
+                    cursorColor: Colors.white,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      hintText: 'Search movies...',
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: Colors.white70,
+                      ),
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+
+                    ),
+                    onChanged: (value) {
+                      // search logic here
+                    },
+                  ),
+                ),
+              ),
+            Padding(
+              padding: EdgeInsets.only(top: _currentIndex == 0 ? 80 : 0, bottom: 20),
+              child: _tabs[_currentIndex],
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -192,4 +248,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

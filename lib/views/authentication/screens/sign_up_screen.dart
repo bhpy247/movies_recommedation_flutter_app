@@ -18,12 +18,17 @@ class SignupScreen extends StatefulWidget {
   _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
+class _SignupScreenState extends State<SignupScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  late final AnimationController _controller;
+  late final Animation<double> _opacityAnimation;
+  late final Animation<double> _scaleAnimation;
 
   String _error = '';
   late AuthenticationController controller;
@@ -32,35 +37,62 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
     isLoading = true;
-    setState(() {
-
-    });
+    setState(() {});
 
     try {
       // Implement your Firebase signup logic here
-      User? user = await controller.registerWithEmail(name: _usernameController.text.trim(), email: _emailController.text, password: _passwordController.text,);
-      if((user?.email) != null){
+      User? user = await controller.registerWithEmail(
+        name: _usernameController.text.trim(),
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      if ((user?.email) != null) {
         NavigationController.navigateToHomeScreen(
-          navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamedAndRemoveUntil),
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamedAndRemoveUntil,
+          ),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Signup failed: ${e.toString()}')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Signup failed: ${e.toString()}')));
       isLoading = false;
-      setState(() {
-
-      });
+      setState(() {});
     } finally {
       isLoading = false;
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
   @override
   void initState() {
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0, 0.5, curve: Curves.easeIn),
+      ),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.5, 1, curve: Curves.elasticOut),
+      ),
+    );
+
+    _controller.forward();
+
     super.initState();
-    controller = AuthenticationController(authenticationProvider: context.read<AuthenticationProvider>());
+    controller = AuthenticationController(
+      authenticationProvider: context.read<AuthenticationProvider>(),
+    );
   }
 
   @override
@@ -69,102 +101,173 @@ class _SignupScreenState extends State<SignupScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: AuthTheme.backgroundColor,
+      backgroundColor: Colors.black,
       body: ModalProgressHUD(
         inAsyncCall: isLoading,
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('SIGNUP', style: AuthTheme.titleStyle),
-                  const SizedBox(height: 5),
-                  Text('Please sign up to create a new account', style: AuthTheme.subtitleStyle),
-                  const SizedBox(height: 35),
-                  Text('Username', style: AuthTheme.inputLabelStyle),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _usernameController,
-                    decoration: AuthTheme.inputDecoration('John Doe'),
-                    style: const TextStyle(color: AuthTheme.textColor),
-                    validator: (value) => value!.isEmpty ? 'Username is required' : null,
-                  ),
-                  const SizedBox(height: 20),
-                  Text('Email ID', style: AuthTheme.inputLabelStyle),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: AuthTheme.inputDecoration('johndoe@gmail.com'),
-                    style: const TextStyle(color: AuthTheme.textColor),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Email is required';
-                      }
-                      final bool emailValid = RegExp(
-                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                          .hasMatch(value);
-                      if (!emailValid) {
-                        return 'Enter a valid email address';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  Text('Password', style: AuthTheme.inputLabelStyle),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: AuthTheme.inputDecoration('*******'),
-                    style: const TextStyle(color: AuthTheme.textColor),
-                    obscureText: true,
-                    validator: (value) => value!.isEmpty ? 'Password is required' : null,
-                  ),
-                  const SizedBox(height: 20),
-                  Text('Confirm Password', style: AuthTheme.inputLabelStyle),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    decoration: AuthTheme.inputDecoration('*******'),
-                    style: const TextStyle(color: AuthTheme.textColor),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please confirm password';
-                      if (value != _passwordController.text) return 'Passwords do not match';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _handleSignup,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AuthTheme.primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-                      ),
-                      child: Text('SIGNUP', style: AuthTheme.buttonTextStyle),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 30,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Already have an account? ', style: TextStyle(color: AuthTheme.textColor)),
-                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Login!', style: TextStyle(color: AuthTheme.primaryColor))),
+                      AnimatedBuilder(
+                        animation: _controller,
+                        builder: (_, __) {
+                          return Opacity(
+                            opacity: _opacityAnimation.value,
+                            child: Transform.scale(
+                              scale: _scaleAnimation.value,
+                              child: Image.asset(
+                                "assets/logo.png",
+                                width: size.width * 0.28,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Create Your Account",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.95),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        "Create your MovieCon account",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.6),
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      TextFormField(
+                        controller: _usernameController,
+                        decoration: AuthTheme.inputDecoration('John Doe'),
+                        style: const TextStyle(color: AuthTheme.textColor),
+                        validator:
+                            (value) =>
+                                value!.isEmpty ? 'Username is required' : null,
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: AuthTheme.inputDecoration(
+                          'johndoe@gmail.com',
+                        ),
+                        style: const TextStyle(color: AuthTheme.textColor),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Email is required';
+                          }
+                          final emailValid = RegExp(
+                            r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$",
+                          ).hasMatch(value);
+                          return emailValid ? null : 'Enter a valid email';
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: AuthTheme.inputDecoration('Password'),
+                        style: const TextStyle(color: AuthTheme.textColor),
+                        obscureText: true,
+                        validator:
+                            (value) =>
+                                value!.isEmpty ? 'Password is required' : null,
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        decoration: AuthTheme.inputDecoration(
+                          'Confirm Password',
+                        ),
+                        style: const TextStyle(color: AuthTheme.textColor),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm password';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 30),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _handleSignup,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AuthTheme.primaryColor,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            'Sign Up',
+                            style: AuthTheme.buttonTextStyle,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Already have an account? ',
+                            style: TextStyle(color: AuthTheme.textColor),
+                          ),
+                          TextButton(
+                            onPressed:
+                                () =>
+                                    NavigationController.navigateToLoginScreen(
+                                      navigationOperationParameters:
+                                          NavigationOperationParameters(
+                                            context: context,
+                                            navigationType:
+                                                NavigationType
+                                                    .pushNamedAndRemoveUntil,
+                                          ),
+                                    ),
+                            child: const Text(
+                              'Login!',
+                              style: TextStyle(color: AuthTheme.primaryColor),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
