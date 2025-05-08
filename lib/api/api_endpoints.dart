@@ -29,6 +29,9 @@ class ApiEndpoints {
   }
   String apiGetMovieCredits(int movieId) => '${getBaseApiUrl()}$movieId/credits?api_key=${getApiKey()}';
   String apiGetSimilarMovies(int movieId) => '${getBaseApiUrl()}$movieId/recommendations?api_key=${getApiKey()}';
+  String apiGetRecommendations(int movieId) {
+    return '${getBaseApiUrl()}${movieId}/recommendations?api_key=${getApiKey()}';
+  }
   //endregion
 
 

@@ -63,6 +63,10 @@ class AuthenticationProvider extends CommonProvider {
     userId.set(value: firebaseUser?.uid ?? "", isNotify: false);
     email.set(value: firebaseUser?.phoneNumber ?? "", isNotify: isNotify);
   }
+  void updateCurrentUser(UserModel updatedUser, {bool isNotify = true}) {
+    userModel.set(value: updatedUser, isNotify: isNotify);
+  }
+
 
   void resetData({bool isNotify = true}) {
     firebaseUser.set(value: null, isNotify: false);

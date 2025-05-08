@@ -3,12 +3,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/navigation/navigation_arguments.dart';
 import 'package:moviesapp/views/authentication/screens/sign_up_screen.dart';
+import 'package:moviesapp/views/chat/screens/friend_request.dart';
+import 'package:moviesapp/views/chat/screens/friend_suggestion.dart';
 import 'package:moviesapp/views/movies/screen/movie_details.dart';
 
 import '../../utils/my_print.dart';
 
 import '../../views/authentication/screens/login_screen.dart';
 import '../../views/authentication/screens/splash_screen.dart';
+import '../../views/chat/screens/chat_screen.dart';
 import '../../views/home/screens/home_screen.dart';
 import 'navigation_operation.dart';
 import 'navigation_operation_parameters.dart';
@@ -103,6 +106,24 @@ class NavigationController {
           page = parseSignUpScreen(settings: settings);
           break;
         }
+
+      case ChatScreen.routeName:
+        {
+          page = parseChatScreen(settings: settings);
+          break;
+        }
+
+      case FriendSuggestionsScreen.routeName:
+        {
+          page = parseFriendSuggestionsScreen(settings: settings);
+          break;
+        }
+
+      case FriendRequestsScreen.routeName:
+        {
+          page = parseFriendRequestsScreen(settings: settings);
+          break;
+        }
     }
 
     if (page != null) {
@@ -187,6 +208,24 @@ class NavigationController {
     }
   }
 
+  static Widget? parseChatScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is ChatScreenArguments) {
+      return ChatScreen(arguments: argument);
+    } else {
+      return null;
+    }
+  }
+
+  static Widget? parseFriendRequestsScreen({required RouteSettings settings}) {
+    return const FriendRequestsScreen();
+  }
+
+
+  static Widget? parseFriendSuggestionsScreen({required RouteSettings settings}) {
+    return const FriendSuggestionsScreen();
+  }
+
   //endregion
 
   //region Navigation Methods
@@ -230,6 +269,31 @@ static Future<dynamic> navigateToMovieDetailScreen({
     navigationOperationParameters: navigationOperationParameters.copyWith(routeName: MovieDetailsScreen.routeName, arguments: arguments),
   );
 }
+
+  static Future<dynamic> navigateToChatScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required ChatScreenArguments arguments,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: ChatScreen.routeName, arguments: arguments),
+    );
+  }
+  static Future<dynamic> navigateToFriendSuggestionScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: FriendSuggestionsScreen.routeName),
+    );
+  }
+
+  static Future<dynamic> navigateToFriendRequestScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: FriendRequestsScreen.routeName),
+    );
+  }
+
 
 //endregion
 }

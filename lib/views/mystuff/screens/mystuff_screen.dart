@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moviesapp/configs/app_colors.dart';
+import 'package:moviesapp/utils/my_print.dart';
 import 'package:moviesapp/views/movies/screen/movies_screen.dart';
 
 class MystuffScreen extends StatelessWidget {
@@ -7,6 +8,7 @@ class MystuffScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    MyPrint.printOnConsole("Hello");
     return DefaultTabController(
       length: 2,
       child: Scaffold(

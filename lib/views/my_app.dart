@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../backend/app_theme/app_theme_provider.dart';
 import '../backend/authentication/authentication_provider.dart';
+import '../backend/chat/chat_provider.dart';
 import '../backend/movies/movies_provider.dart';
 import '../backend/navigation/navigation_controller.dart';
 import '../utils/my_print.dart';
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AppThemeProvider>(create: (_) => AppThemeProvider(), lazy: false),
         ChangeNotifierProvider<AuthenticationProvider>(create: (_) => AuthenticationProvider(), lazy: false),
         ChangeNotifierProvider<MoviesProvider>(create: (_) => MoviesProvider(), lazy: false),
+        ChangeNotifierProvider<ChatProvider>(create: (_) => ChatProvider(), lazy: false),
       ],
       child: const MainApp(),
     );

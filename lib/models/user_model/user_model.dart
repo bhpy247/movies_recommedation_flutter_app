@@ -8,7 +8,7 @@ class UserModel {
   List<int> favorites;
   List<String> friendRequests;
   List<String> friends;
-  String? photolr1;
+  String? photoUrl;
   List<String> sentFriendRequests;
   String uid;
   String username;
@@ -21,7 +21,7 @@ class UserModel {
     List<int>? favorites,
     List<String>? friendRequests,
     List<String>? friends,
-    this.photolr1,
+    this.photoUrl,
     List<String>? sentFriendRequests,
     this.uid = "",
     this.username = "",
@@ -40,7 +40,7 @@ class UserModel {
       favorites: ParsingHelper.parseListMethod<dynamic, int>(json['favorites']),
       friendRequests: ParsingHelper.parseListMethod<dynamic, String>(json['friendRequests']),
       friends: ParsingHelper.parseListMethod<dynamic, String>(json['friends']),
-      photolr1: ParsingHelper.parseStringNullableMethod(json['photolr1']),
+      photoUrl: ParsingHelper.parseStringNullableMethod(json['photoUrl']),
       sentFriendRequests: ParsingHelper.parseListMethod<dynamic, String>(json['sentFriendRequests']),
       uid: ParsingHelper.parseStringMethod(json['uid']),
       username: ParsingHelper.parseStringMethod(json['username']),
@@ -49,6 +49,35 @@ class UserModel {
     );
   }
 
+  UserModel copyWith({
+    String? displayName,
+    String? email,
+    List<int>? favorites,
+    List<String>? friendRequests,
+    List<String>? friends,
+    String? photoUrl,
+    List<String>? sentFriendRequests,
+    String? uid,
+    String? username,
+    List<int>? watchlist,
+    Timestamp? createdTime,
+  }) {
+    return UserModel(
+      displayName: displayName ?? this.displayName,
+      email: email ?? this.email,
+      favorites: favorites ?? this.favorites,
+      friendRequests: friendRequests ?? this.friendRequests,
+      friends: friends ?? this.friends,
+      photoUrl: photoUrl ?? this.photoUrl,
+      sentFriendRequests: sentFriendRequests ?? this.sentFriendRequests,
+      uid: uid ?? this.uid,
+      username: username ?? this.username,
+      watchlist: watchlist ?? this.watchlist,
+      createdTime: createdTime ?? this.createdTime,
+    );
+  }
+
+
   Map<String, dynamic> toJson() {
     return {
       'displayName': displayName,
@@ -56,7 +85,7 @@ class UserModel {
       'favorites': favorites,
       'friendRequests': friendRequests,
       'friends': friends,
-      'photolr1': photolr1,
+      'photoUrl': photoUrl,
       'sentFriendRequests': sentFriendRequests,
       'uid': uid,
       'username': username,

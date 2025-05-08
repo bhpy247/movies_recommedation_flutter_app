@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/authentication/authentication_controller.dart';
 import 'package:moviesapp/backend/navigation/navigation_controller.dart';
 import 'package:moviesapp/views/chat/screens/chat_screen.dart';
 import 'package:moviesapp/views/mystuff/screens/mystuff_screen.dart';
+import 'package:moviesapp/views/chat/screens/main_chat_screen.dart';
 import 'package:moviesapp/views/profile/screens/profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:moviesapp/backend/movies/movies_controller.dart';
@@ -14,7 +13,7 @@ import 'package:moviesapp/models/movies/response_model/movies_response_model.dar
 import 'package:moviesapp/configs/app_colors.dart';
 
 import '../../movies/screen/movies_screen.dart';
-import '../../recommend/screens/recommend_screen.dart';
+import '../../movies/screen/recommended_screen.dart';
 import '../components/shimmer_grid_item.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -52,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         scrollController: _scrollController,
       ),
-      const ChatScreen(),
+      const MainChatScreen(),
       const MystuffScreen(),
       const ProfileScreen(),
       const RecommendScreen(),
@@ -100,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ElevatedButton(
-              child: Text('Logout', style: TextStyle(color: Colors.white)),
+              child: Text('Logout',style: TextStyle(color: Colors.white),),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFD24DFF), // Button color
               ),
@@ -122,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _iconList = <IconData>[
     Icons.home,
     Icons.chat_bubble,
-    Icons.inventory_2,
+    Icons.search,
     Icons.person,
   ];
 
@@ -150,9 +149,14 @@ class _HomeScreenState extends State<HomeScreen> {
         extendBody: true,
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.black,
-        appBar: AppBar(
+        appBar: [0,2,3].contains( _currentIndex) ? AppBar(
           backgroundColor: Colors.black.withOpacity(0.2),
           elevation: 0,
+          actions: [
+            IconButton(onPressed: () async {
+              await AuthenticationController(authenticationProvider: context.read()).logout(isShowConfirmationDialog: true,isNavigateToLogin: true);
+            }, icon: Icon(Icons.logout))
+          ],
           centerTitle: true,
           title: Text(
             _getAppBarTitle(_currentIndex),
@@ -163,22 +167,9 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.white,
             ),
           ),
-        ),
+        ) : null,
         body: Stack(
           children: [
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    // Color(0xFF0F0C29),
-                    // Color(0xFF302B63),
-                    // Color(0xFF24243E),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
             if (_currentIndex == 0)
               Positioned(
                 top: 20,
@@ -203,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
-                      
+
                     ),
                     onChanged: (value) {
                       // search logic here

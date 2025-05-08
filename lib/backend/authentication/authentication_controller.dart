@@ -48,7 +48,9 @@ class AuthenticationController {
     AuthenticationProvider provider = authenticationProvider;
 
     User? firebaseUser = await FirebaseAuth.instance.authStateChanges().first;
-
+    MyPrint.printOnConsole("FirebaseAuth.instance.currentUser != null: ${FirebaseAuth.instance.currentUser != null}");
+    final user = FirebaseAuth.instance.currentUser;
+    print("Current UID: ${user?.uid}");
     if (firebaseUser == null) {
       if (kIsWeb) {
         await Future.delayed(const Duration(seconds: 2));
@@ -132,7 +134,7 @@ class AuthenticationController {
       UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
       // Store session data
       await _storeUserData(userCredential.user);
-
+      getUserModel(userId: userCredential.user?.uid ?? "");
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       debugPrint('Login error: ${e.code} - ${e.message}');
@@ -146,14 +148,13 @@ class AuthenticationController {
   Future<UserModel> createUserModelFromSharedPref() async {
     final prefs = await SharedPreferences.getInstance();
 
-    String userID =prefs.getString(SharePreferenceKeys.userIdKey) ?? "";
-    String email =prefs.getString(SharePreferenceKeys.authenticatedUserEmail) ?? "";
-    String name =prefs.getString(SharePreferenceKeys.userNameKey) ?? "";
-    String token =prefs.getString(SharePreferenceKeys.bearerToken) ?? "";
-    String userName =prefs.getString(SharePreferenceKeys.authenticatedUserName) ?? "";
+    String userID = prefs.getString(SharePreferenceKeys.userIdKey) ?? "";
+    String email = prefs.getString(SharePreferenceKeys.authenticatedUserEmail) ?? "";
+    String name = prefs.getString(SharePreferenceKeys.userNameKey) ?? "";
+    String token = prefs.getString(SharePreferenceKeys.bearerToken) ?? "";
+    String userName = prefs.getString(SharePreferenceKeys.authenticatedUserName) ?? "";
 
-
-    UserModel userModel =  UserModel(email: email,displayName: name,uid: userID,createdTime: Timestamp.now());
+    UserModel userModel = UserModel(email: email, displayName: name, uid: userID, createdTime: Timestamp.now());
 
     return userModel;
   }
@@ -168,10 +169,9 @@ class AuthenticationController {
     await prefs.setString(SharePreferenceKeys.bearerToken, await user.getIdToken() ?? '');
     await prefs.setString(SharePreferenceKeys.authenticatedUserName, user.email ?? "");
     MyPrint.printOnConsole("in store data ${prefs.getString("key")}");
-    
-    authenticationProvider.userModel.set(value: UserModel(uid: user.uid, displayName: user.displayName ??"", email: user.email ?? ""));
-    authenticationProvider.userId.set(value: user.uid);
 
+    authenticationProvider.userModel.set(value: UserModel(uid: user.uid, displayName: user.displayName ?? "", email: user.email ?? ""));
+    authenticationProvider.userId.set(value: user.uid);
   }
 
   String _convertFirebaseError(FirebaseAuthException e) {
@@ -200,12 +200,12 @@ class AuthenticationController {
 
       // Update user profile with name
       UserController userController = UserController();
-      String userId =  userCredential.user?.uid ?? "";
+      String userId = userCredential.user?.uid ?? "";
       String userEmail = userCredential.user?.email ?? "";
 
-      UserModel createdUserModel = UserModel(uid: userId, email: userEmail, displayName:name);
+      UserModel createdUserModel = UserModel(uid: userId, email: userEmail, displayName: name, username: name);
       bool isCreated = await userController.createNewUser(userModel: createdUserModel);
-      MyPrint.printOnConsole("isUserCreated:'$isCreated'",);
+      MyPrint.printOnConsole("isUserCreated:'$isCreated'");
 
       if (isCreated) {
         authenticationProvider.userModel.set(value: createdUserModel, isNotify: false);
@@ -222,7 +222,6 @@ class AuthenticationController {
       throw 'Registration failed. Please try again.';
     }
   }
-
 
   Future<bool> logout({
     bool isShowConfirmationDialog = false,
@@ -263,12 +262,12 @@ class AuthenticationController {
         FirebaseAuth.instance
             .signOut()
             .then((value) {
-          MyPrint.printOnConsole("Logged Out User From Firebase Auth");
-        })
+              MyPrint.printOnConsole("Logged Out User From Firebase Auth");
+            })
             .catchError((e, s) {
-          MyPrint.printOnConsole("Error in Logging Out User From Firebase:$e");
-          MyPrint.printOnConsole(s);
-        }),
+              MyPrint.printOnConsole("Error in Logging Out User From Firebase:$e");
+              MyPrint.printOnConsole(s);
+            }),
       ]);
     } catch (e, s) {
       MyPrint.printOnConsole("Error in Logging Out:$e");
@@ -293,5 +292,4 @@ class AuthenticationController {
 
     return isLoggedOut;
   }
-
 }
