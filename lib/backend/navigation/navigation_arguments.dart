@@ -22,6 +22,15 @@ class QuizPageNavigationArguments extends NavigationArguments {
   });
 }
 
+
+class MoviesDetailArguments extends NavigationArguments {
+  final int movieId;
+
+  const MoviesDetailArguments({
+    required this.movieId,
+  });
+}
+
 // class EventDetailNavigationArgument extends NavigationArguments {
 //   final EventModel eventModel;
 //   final UserModel? userModel;

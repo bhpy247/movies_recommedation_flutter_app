@@ -23,7 +23,7 @@ class UserRepository {
       MyPrint.printOnConsole("snapshot.data():'${snapshot.data()}'", tag: tag);
 
       if (snapshot.exists && (snapshot.data()?.isNotEmpty ?? false)) {
-        return UserModel.fromMap(snapshot.data()!);
+        return UserModel.fromJson(snapshot.data()!);
       } else {
         return null;
       }
@@ -38,7 +38,7 @@ class UserRepository {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("UserRepository().createNewUser() called with userModel:'$userModel'", tag: tag);
 
-    if (userModel.id.isEmpty) {
+    if (userModel.uid.isEmpty) {
       MyPrint.printOnConsole("Returning from UserRepository().createNewUser() because userId is empty", tag: tag);
       return false;
     }
@@ -53,7 +53,7 @@ class UserRepository {
 
       MyPrint.printOnConsole("Final userModel:'$userModel'", tag: tag);
 
-      await FirebaseNodes.userDocumentReference(userId: userModel.id).set(userModel.toMap());
+      await FirebaseNodes.userDocumentReference(userId: userModel.uid).set(userModel.toJson());
       isCreated = true;
     } catch (e, s) {
       MyPrint.printOnConsole("Error in Creating User Document in Firestore in UserRepository().createNewUser():$e", tag: tag);

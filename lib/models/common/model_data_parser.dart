@@ -1,5 +1,8 @@
 
+import 'package:moviesapp/models/movies/response_model/cast_model.dart';
+import 'package:moviesapp/models/movies/response_model/movies_detail_response_model.dart';
 import 'package:moviesapp/models/movies/response_model/movies_response_model.dart';
+import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.dart';
 
 import '../../utils/my_print.dart';
 import '../../utils/parsing_helper.dart';
@@ -16,7 +19,10 @@ enum ModelDataParsingType {
   StringList,
   loginModel,
   moviesModel,
-  quizQuestionResponseModel
+  quizQuestionResponseModel,
+  moviesDetailResponseModel,
+  castListModel,
+  similarMoviesModel
 
   //region App Module
   // CurrencyDataResponseModel,
@@ -31,6 +37,9 @@ class ModelDataParser {
     ModelDataParsingType.List: parseList,
     ModelDataParsingType.StringList: parseStringList,
     ModelDataParsingType.moviesModel: parseMovieModelResponseModel,
+    ModelDataParsingType.moviesDetailResponseModel: parseMovieDetailModelResponseModel,
+    ModelDataParsingType.castListModel: parseCastListResponseModel,
+    ModelDataParsingType.similarMoviesModel: parseSimilarMovieResponseModel,
 
     //region App Module
     // ModelDataParsingType.CurrencyDataResponseModel: parseCurrencyDataResponseModel,
@@ -78,6 +87,36 @@ class ModelDataParser {
 
     if (map.isNotEmpty) {
       return MoviesResponseModel.fromJson(map);
+    } else {
+      return null;
+    }
+  }
+
+  static MovieDetailsModel? parseMovieDetailModelResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return MovieDetailsModel.fromJson(map);
+    } else {
+      return null;
+    }
+  }
+
+  static CastResponseModel? parseCastListResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return CastResponseModel.fromJson(map);
+    } else {
+      return null;
+    }
+  }
+
+  static SimilarMoviesResponseModel? parseSimilarMovieResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return SimilarMoviesResponseModel.fromJson(map);
     } else {
       return null;
     }

@@ -5,57 +5,31 @@ class ApiEndpoints {
     required this.siteUrl,
     required this.authUrl,
     // this.apiUrl = "http://localhost:55557/api/v1",
-    this.apiUrl = "https://quiz-backend-1-yjm4.onrender.com/api/v1",
+    this.apiUrl = "https://api.themoviedb.org/3/movie/",
   });
-
-  String getAuthUrl() {
-    return authUrl;
-  }
-
-  String getSiteUrl() {
-    return siteUrl;
-  }
 
   String getBaseApiUrl() {
     // return "http://192.168.29.164:55557/api/v1";
-    return "https://quiz-backend-1-yjm4.onrender.com/api/v1";
+    return "https://api.themoviedb.org/3/movie/";
+  }
+  String getApiKey() {
+    // return "http://192.168.29.164:55557/api/v1";
+    return "fc6b0f8734f6d710fed11de93fc496cc";
   }
 
+  //-------------------------Api Urls-------------------------------------
 
-
-  //region Authentication Api
-  String apiPostLoginDetails() {
-    return "${getBaseApiUrl()}/auth/login";
-  }
-
-  String apiRegisterUser() {
-    return "${getBaseApiUrl()}/auth/register";
-  }
-  // String apiSignUpUser({
-  //   required String locale,
-  // }) =>
-  //     '${getBaseApiUrl()}MobileLMS/MobileCreateSignUp?Locale=$locale&SiteURL=$siteUrl';
-
-  //endregion
-  String apiGetUser(String userId) {
-    return "${getBaseApiUrl()}/users/$userId";
-  }
 
   String apiGetMovies(int page) {
-    return "https://api.themoviedb.org/3/movie/popular?page=${page}&api_key=fc6b0f8734f6d710fed11de93fc496cc";
+    return "${getBaseApiUrl()}popular?page=${page}&api_key=${getApiKey()}";
   }
 
-  String apiUpdateUser(String userId) {
-    return "${getBaseApiUrl()}/users/$userId";
+  String apiGetMovieDetails(int movieId) {
+    return '${getBaseApiUrl()}$movieId?api_key=${getApiKey()}';
   }
-
-  String qpiGetQuizQuestion(String levelId) {
-    return "${getBaseApiUrl()}/question/getQuestion/$levelId";
-  }
-  //region GetUser
-
+  String apiGetMovieCredits(int movieId) => '${getBaseApiUrl()}$movieId/credits?api_key=${getApiKey()}';
+  String apiGetSimilarMovies(int movieId) => '${getBaseApiUrl()}$movieId/recommendations?api_key=${getApiKey()}';
   //endregion
 
-  //region Home Menu Api
 
 }

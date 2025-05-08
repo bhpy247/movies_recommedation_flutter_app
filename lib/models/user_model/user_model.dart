@@ -1,54 +1,67 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../utils/my_utils.dart';
-import '../../../utils/parsing_helper.dart';
+import '../../utils/parsing_helper.dart';
 
 class UserModel {
-  String id = "";
-  String name = "";
-  String email = "";
-
-  Timestamp? createdTime;
-  Timestamp? updatedTime;
+  String displayName;
+  String email;
+  List<int> favorites;
+  List<String> friendRequests;
+  List<String> friends;
+  String? photolr1;
+  List<String> sentFriendRequests;
+  String uid;
+  String username;
+  List<int> watchlist;
+  Timestamp? createdTime; // New timestamp field
 
   UserModel({
-    this.id = "",
-    this.name = "",
+    this.displayName = "",
     this.email = "",
+    List<int>? favorites,
+    List<String>? friendRequests,
+    List<String>? friends,
+    this.photolr1,
+    List<String>? sentFriendRequests,
+    this.uid = "",
+    this.username = "",
+    List<int>? watchlist,
+    this.createdTime, // Added to constructor
+  })  : favorites = favorites ?? [],
+        friendRequests = friendRequests ?? [],
+        friends = friends ?? [],
+        sentFriendRequests = sentFriendRequests ?? [],
+        watchlist = watchlist ?? [];
 
-    this.createdTime,
-    this.updatedTime,
-  }) ;
-
-  UserModel.fromMap(Map<String, dynamic> map) {
-    initializeFromMap(map);
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      displayName: ParsingHelper.parseStringMethod(json['displayName']),
+      email: ParsingHelper.parseStringMethod(json['email']),
+      favorites: ParsingHelper.parseListMethod<dynamic, int>(json['favorites']),
+      friendRequests: ParsingHelper.parseListMethod<dynamic, String>(json['friendRequests']),
+      friends: ParsingHelper.parseListMethod<dynamic, String>(json['friends']),
+      photolr1: ParsingHelper.parseStringNullableMethod(json['photolr1']),
+      sentFriendRequests: ParsingHelper.parseListMethod<dynamic, String>(json['sentFriendRequests']),
+      uid: ParsingHelper.parseStringMethod(json['uid']),
+      username: ParsingHelper.parseStringMethod(json['username']),
+      watchlist: ParsingHelper.parseListMethod<dynamic, int>(json['watchlist']),
+      createdTime: ParsingHelper.parseTimestampMethod(json['createdTime']), // Parsed using your helper
+    );
   }
 
-  void updateFromMap(Map<String, dynamic> map) {
-    initializeFromMap(map);
-  }
-
-  void initializeFromMap(Map<String, dynamic> map) {
-    id = ParsingHelper.parseStringMethod(map['id']);
-    name = ParsingHelper.parseStringMethod(map['name']);
-    email = ParsingHelper.parseStringMethod(map['email']);
-    createdTime = ParsingHelper.parseTimestampMethod(map['createdTime']);
-    updatedTime = ParsingHelper.parseTimestampMethod(map['updatedTime']);
-  }
-
-  Map<String, dynamic> toMap({bool toJson = false}) {
-    return <String, dynamic>{
-      "id" : id,
-      "name" : name,
-      "email" : email,
-
-      "createdTime" : toJson ? createdTime?.toDate().millisecondsSinceEpoch : createdTime,
-      "updatedTime" : toJson ? updatedTime?.toDate().millisecondsSinceEpoch : updatedTime,
+  Map<String, dynamic> toJson() {
+    return {
+      'displayName': displayName,
+      'email': email,
+      'favorites': favorites,
+      'friendRequests': friendRequests,
+      'friends': friends,
+      'photolr1': photolr1,
+      'sentFriendRequests': sentFriendRequests,
+      'uid': uid,
+      'username': username,
+      'watchlist': watchlist,
+      'createdTime': createdTime, // Included in JSON output
     };
-  }
-
-  @override
-  String toString() {
-    return MyUtils.encodeJson(toMap(toJson: true));
   }
 }

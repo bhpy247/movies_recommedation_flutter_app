@@ -51,6 +51,7 @@ dependencies:
   firebase_auth: ^5.5.3
   video_player: ^2.8.1
   modal_progress_hud_nsn: ^0.5.1
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
