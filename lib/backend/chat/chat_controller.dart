@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:moviesapp/utils/my_print.dart';
+import '../../models/user_model/user_model.dart';
 import 'chat_provider.dart';
 import 'chat_repository.dart';
 
@@ -37,4 +39,46 @@ class ChatController {
   void reset() {
     chatProvider.resetData();
   }
+
+  Future<List<UserModel>> fetchFriendRequests(String uid) async {
+    return await _chatRepository.getFriendRequests(uid);
+  }
+
+  Future<void> acceptFriendRequest({
+    required String currentUid,
+    required String requesterUid,
+    required String requesterUsername,
+  }) async {
+    await _chatRepository.acceptFriendRequest(
+      currentUid: currentUid,
+      requesterUid: requesterUid,
+      requesterUsername: requesterUsername,
+    );
+  }
+
+  Future<void> rejectFriendRequest(String currentUid, String requesterUid) async {
+    await _chatRepository.rejectFriendRequest(currentUid, requesterUid);
+  }
+
+  Future<List<Map<String, dynamic>>> getFriendSuggestions({
+    required String username,
+    required List favorites,
+    required List watchlist,
+    required List<String> sentRequests,
+    required List<String> friends,
+  }) async {
+    MyPrint.printOnConsole("UserName : ${username}");
+    return await _chatRepository.suggestFriends(
+      username: username,
+      favorites: favorites,
+      watchlist: watchlist,
+      sentRequests: sentRequests,
+      friends: friends,
+    );
+  }
+
+  Future<void> sendFriendRequest(String fromUsername, String toUsername) async {
+    await _chatRepository.sendFriendRequest(fromUsername, toUsername);
+  }
+
 }

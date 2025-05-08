@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../models/user_model/user_model.dart';
 import '../../utils/my_print.dart';
 
 class ChatRepository {
@@ -36,5 +37,102 @@ class ChatRepository {
     } catch (e) {
       MyPrint.printOnConsole("Error sending message: $e");
     }
+  }
+
+  Future<List<UserModel>> getFriendRequests(String uid) async {
+    try {
+      final docSnapshot = await _firestore.collection('user').doc(uid).get();
+      List<String> requestUids = List<String>.from(docSnapshot.data()?['friendRequests'] ?? []);
+      List<UserModel> users = [];
+
+      for (String requesterUid in requestUids) {
+        final q = await _firestore.collection("user").where("uid", isEqualTo: requesterUid).get();
+        if (q.docs.isNotEmpty) {
+          users.add(UserModel.fromJson(q.docs.first.data()));
+        }
+      }
+
+      return users;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> acceptFriendRequest({
+    required String currentUid,
+    required String requesterUid,
+    required String requesterUsername,
+  }) async {
+    final batch = _firestore.batch();
+    final currentRef = _firestore.collection('user').doc(currentUid);
+    final requesterRef = _firestore.collection('user').doc(requesterUid);
+
+    batch.update(currentRef, {
+      'friends': FieldValue.arrayUnion([requesterUid]),
+      'friendRequests': FieldValue.arrayRemove([requesterUid]),
+    });
+
+    batch.update(requesterRef, {
+      'friends': FieldValue.arrayUnion([currentUid]),
+      'sentFriendRequests': FieldValue.arrayRemove([currentUid]),
+    });
+
+    await batch.commit();
+  }
+
+  Future<void> rejectFriendRequest(String currentUid, String requesterUid) async {
+    await _firestore.collection('user').doc(currentUid).update({
+      'friendRequests': FieldValue.arrayRemove([requesterUid])
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> suggestFriends({
+    required String username,
+    required List favorites,
+    required List watchlist,
+    required List<String> sentRequests,
+    required List<String> friends,
+  }) async {
+    final snapshot = await _firestore
+        .collection('user')
+        .where("username", isNotEqualTo: username)
+        .get();
+
+    List<Map<String, dynamic>> suggestions = [];
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final docUsername = doc.id;
+
+      if (friends.contains(docUsername) || sentRequests.contains(docUsername)) continue;
+
+      final favScore = _matchScore(List.from(data['favorites'] ?? []), favorites);
+      final watchScore = _matchScore(List.from(data['watchlist'] ?? []), watchlist);
+      final score = favScore + watchScore;
+
+      // if (score > 0) {
+        suggestions.add({...data, 'username': docUsername, 'score': score});
+      // }
+    }
+
+    suggestions.sort((a, b) => (b['score']).compareTo(a['score']));
+    return suggestions.take(10).toList();
+  }
+
+  double _matchScore(List listA, List listB) {
+    return listA.where((item) => listB.contains(item)).length.toDouble();
+  }
+
+  Future<void> sendFriendRequest(String senderUsername, String receiverUsername) async {
+    final senderRef = _firestore.collection('user').doc(senderUsername);
+    final receiverRef = _firestore.collection('user').doc(receiverUsername);
+
+    await senderRef.update({
+      'sentFriendRequests': FieldValue.arrayUnion([receiverUsername])
+    });
+
+    await receiverRef.update({
+      'friendRequests': FieldValue.arrayUnion([senderUsername])
+    });
   }
 }

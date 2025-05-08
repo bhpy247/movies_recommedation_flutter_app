@@ -48,7 +48,9 @@ class AuthenticationController {
     AuthenticationProvider provider = authenticationProvider;
 
     User? firebaseUser = await FirebaseAuth.instance.authStateChanges().first;
-
+    MyPrint.printOnConsole("FirebaseAuth.instance.currentUser != null: ${FirebaseAuth.instance.currentUser != null}");
+    final user = FirebaseAuth.instance.currentUser;
+    print("Current UID: ${user?.uid}");
     if (firebaseUser == null) {
       if (kIsWeb) {
         await Future.delayed(const Duration(seconds: 2));

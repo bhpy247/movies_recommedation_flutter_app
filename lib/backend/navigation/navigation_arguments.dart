@@ -31,6 +31,17 @@ class MoviesDetailArguments extends NavigationArguments {
   });
 }
 
+class ChatScreenArguments extends NavigationArguments {
+  final String receiverId;
+  final String receiverName;
+
+  const ChatScreenArguments({
+    required this.receiverId,
+    required this.receiverName,
+  });
+}
+
+
 // class EventDetailNavigationArgument extends NavigationArguments {
 //   final EventModel eventModel;
 //   final UserModel? userModel;
