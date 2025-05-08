@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/authentication/authentication_provider.dart';
@@ -8,6 +9,7 @@ import 'package:moviesapp/utils/extensions.dart';
 import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
+import '../../configs/constants.dart';
 import '../../models/common/data_response_model.dart';
 import '../../utils/my_print.dart';
 import '../authentication/authentication_repository.dart';
@@ -183,4 +185,55 @@ class MoviesController {
     final shuffled = List.from(list)..shuffle();
     return shuffled.take(count).toList();
   }
+
+  Future<void> getFavoriteMoviesList(BuildContext context) async {
+    try {
+      final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+      final userId = authProvider.userId.get();
+
+      final userDoc = await FirebaseNodes.userDocumentReference(userId: userId).get();
+      final List favoriteIds = userDoc.data()?['favorites'] ?? [];
+
+      List<MovieDetailsModel> favoriteMovies = [];
+
+      for (var id in favoriteIds) {
+        final response = await moviesRepository.getMovieDetails(int.tryParse(id.toString()) ?? 0);
+        if (response.statusCode == 200 && response.data != null) {
+          favoriteMovies.add(response.data!);
+        }
+      }
+
+      moviesProvider.favouriteMovieList.setList(list: favoriteMovies);
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in getFavoriteMoviesList: $e");
+      MyPrint.printOnConsole(s);
+      moviesProvider.error.set(value: 'Failed to load favorite movies');
+    }
+  }
+
+  Future<void> getWatchlistMoviesList(BuildContext context) async {
+    try {
+      final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+      final userId = authProvider.userId.get();
+
+      final userDoc = await FirebaseNodes.userDocumentReference(userId: userId).get();
+      final List watchlistIds = userDoc.data()?['watchlist'] ?? [];
+
+      List<MovieDetailsModel> watchlistMovies = [];
+
+      for (var id in watchlistIds) {
+        final response = await moviesRepository.getMovieDetails(int.tryParse(id.toString()) ?? 0);
+        if (response.statusCode == 200 && response.data != null) {
+          watchlistMovies.add(response.data!);
+        }
+      }
+
+      moviesProvider.watchList.setList(list: watchlistMovies);
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in getWatchlistMoviesList: $e");
+      MyPrint.printOnConsole(s);
+      moviesProvider.error.set(value: 'Failed to load watchlist movies');
+    }
+  }
+
 }

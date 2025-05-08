@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:moviesapp/configs/constants.dart';
+import 'package:moviesapp/configs/typedefs.dart';
 import 'package:moviesapp/models/movies/response_model/movies_response_model.dart';
 import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.dart';
 import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.dart';
@@ -26,8 +29,7 @@ class MoviesRepository {
 
     MyPrint.printOnConsole("Site Url:${apiController.apiDataProvider.getAuthToken()}");
 
-    ApiCallModel apiCallModel =
-    await apiController.getApiCallModelFromData<String>(
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simpleGetCall,
       parsingType: ModelDataParsingType.moviesModel,
       url: apiEndpoints.apiGetMovies(page),
@@ -35,10 +37,7 @@ class MoviesRepository {
       // token: apiController.apiDataProvider.getAuthToken(),
     );
 
-    DataResponseModel<MoviesResponseModel> apiResponseModel =
-    await apiController.callApi<MoviesResponseModel>(
-      apiCallModel: apiCallModel,
-    );
+    DataResponseModel<MoviesResponseModel> apiResponseModel = await apiController.callApi<MoviesResponseModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }
@@ -52,10 +51,7 @@ class MoviesRepository {
       url: apiEndpoints.apiGetMovieDetails(movieId),
     );
 
-    DataResponseModel<MovieDetailsModel> apiResponseModel =
-    await apiController.callApi<MovieDetailsModel>(
-      apiCallModel: apiCallModel,
-    );
+    DataResponseModel<MovieDetailsModel> apiResponseModel = await apiController.callApi<MovieDetailsModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }
@@ -69,9 +65,7 @@ class MoviesRepository {
       url: apiEndpoints.apiGetMovieCredits(movieId),
     );
 
-    final apiResponseModel = await apiController.callApi<CastResponseModel>(
-      apiCallModel: apiCallModel,
-    );
+    final apiResponseModel = await apiController.callApi<CastResponseModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }
@@ -85,9 +79,7 @@ class MoviesRepository {
       url: apiEndpoints.apiGetSimilarMovies(movieId),
     );
 
-    final apiResponseModel = await apiController.callApi<SimilarMoviesResponseModel>(
-      apiCallModel: apiCallModel,
-    );
+    final apiResponseModel = await apiController.callApi<SimilarMoviesResponseModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }
@@ -102,12 +94,23 @@ class MoviesRepository {
       url: apiEndpoints.apiGetRecommendations(movieId),
     );
 
-    final apiResponseModel = await apiController.callApi<MoviesResponseModel>(
-      apiCallModel: apiCallModel,
-    );
+    final apiResponseModel = await apiController.callApi<MoviesResponseModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }
 
 
+
+  Future<List<Map<String, dynamic>>> _fetchMoviesFromIds(List<dynamic> ids) async {
+    if (ids.isEmpty) return [];
+    final moviesCollection = FirebaseFirestore.instance.collection('movies'); // or 'movie'
+    List<Map<String, dynamic>> results = [];
+
+    for (String id in ids) {
+      final doc = await moviesCollection.doc(id).get();
+      if (doc.exists) results.add({'id': doc.id, ...doc.data()!});
+    }
+
+    return results;
+  }
 }

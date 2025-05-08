@@ -33,16 +33,23 @@ class ProfileScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 70,
-                      backgroundColor: primaryColor.withOpacity(0.15),
-                      child: Text(
-                        "${getInitials(userModel?.displayName ?? "")}", // Replace with user name[0]
-                        style: TextStyle(
-                          fontSize: 52,
-                          color: primaryColor,
-                          fontWeight: FontWeight.bold,
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: primaryColor,width: .1),
+                        shape: BoxShape.circle
+                      ),
+                      child: CircleAvatar(
+                        radius: 70,
+                        backgroundColor: primaryColor.withOpacity(0.15),
+                        child: Text(
+                          "${getInitials(userModel?.displayName ?? "")}", // Replace with user name[0]
+                          style: TextStyle(
+                            fontSize: 52,
+                            color: primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
+
                       ),
                     ),
                     const SizedBox(height: 12),
