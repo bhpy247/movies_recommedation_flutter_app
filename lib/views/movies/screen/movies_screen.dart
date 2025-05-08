@@ -100,8 +100,9 @@ class MoviesTab extends StatelessWidget {
 // Keep your existing MovieGridItem and ShimmerGridItem classes
 class MovieGridItem extends StatefulWidget {
   final MoviesList movie;
+  final bool isFromFavouriteOrWatchList;
 
-  const MovieGridItem({super.key, required this.movie});
+  const MovieGridItem({super.key, required this.movie, this.isFromFavouriteOrWatchList = false});
 
   @override
   State<MovieGridItem> createState() => _MovieGridItemState();
@@ -216,6 +217,7 @@ class _MovieGridItemState extends State<MovieGridItem> {
             ),
 
             // Favorite toggle
+            if(!widget.isFromFavouriteOrWatchList)
             Positioned(
               top: 10,
               left: 10,
@@ -232,6 +234,7 @@ class _MovieGridItemState extends State<MovieGridItem> {
             ),
 
             // Watchlist toggle
+            if(!widget.isFromFavouriteOrWatchList)
             Positioned(
               top: 10,
               right: 10,
@@ -259,13 +262,13 @@ class _MovieGridItemState extends State<MovieGridItem> {
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: Colors.black.withOpacity(0.35),
             border: Border.all(color: Colors.white.withOpacity(0.2)),
           ),
-          child: Icon(icon, color: color, size: 20),
+          child: Icon(icon, color: color, size: 22),
         ),
       ),
     );

@@ -29,6 +29,9 @@ class MoviesProvider extends CommonProvider {
     recommendations = CommonProviderListParameter(list: [], notify: notify);
     recommendationError = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
 
+    favouriteMovieList = CommonProviderListParameter(list: [], notify: notify);
+    watchList = CommonProviderListParameter(list: [], notify: notify);
+
 
   }
 
@@ -53,6 +56,10 @@ class MoviesProvider extends CommonProvider {
   late CommonProviderListParameter<MoviesList> recommendations;
   late CommonProviderPrimitiveParameter<bool> recommendationError;
 
+  late CommonProviderListParameter<MovieDetailsModel> favouriteMovieList;
+  late CommonProviderListParameter<MovieDetailsModel> watchList;
+
+
 
   void resetPagination() {
     isFirstTimeLoading = CommonProviderPrimitiveParameter<bool>(value: true, notify: notify);
@@ -75,6 +82,13 @@ class MoviesProvider extends CommonProvider {
     // In resetPagination:
     recommendations = CommonProviderListParameter(list: [], notify: notify);
     recommendationError = CommonProviderPrimitiveParameter<bool>(value: false, notify: notify);
+
+
+    favouriteMovieList = CommonProviderListParameter(list: [], notify: notify);
+    watchList = CommonProviderListParameter(list: [], notify: notify);
+
+
+
 
 
 

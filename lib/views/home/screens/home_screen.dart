@@ -33,30 +33,12 @@ class _HomeScreenState extends State<HomeScreen> {
   // Tab pages - you can replace these with your actual content
   late List<Widget> _tabs = [];
 
-  @override
-  void initState() {
-    super.initState();
-    final moviesProvider = context.read<MoviesProvider>();
-    _moviesController = MoviesController(moviesProvider: moviesProvider);
-
-    // Initial load
-    _moviesController.getMoviesList(context);
-
-    // Setup scroll listener for pagination
-    _scrollController.addListener(_scrollListener);
-    _tabs = [
-      MoviesTab(
-        onRefresh: () {
-          _refreshData();
-        },
-        scrollController: _scrollController,
-      ),
-      const MainChatScreen(),
-      const MystuffScreen(),
-      const ProfileScreen(),
-      const RecommendScreen(),
-    ];
-  }
+  final _iconList = <IconData>[
+    Icons.home,
+    Icons.chat_bubble,
+    Icons.inventory_2,
+    Icons.person,
+  ];
 
   @override
   void dispose() {
@@ -78,52 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
     await _moviesController.refreshMoviesList(context);
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Logout',
-            style: TextStyle(
-              color: Color(0xFFD24DFF),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text('Are you sure you want to logout?'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Cancel', style: TextStyle(color: Colors.grey)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            ElevatedButton(
-              child: Text('Logout',style: TextStyle(color: Colors.white),),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFD24DFF), // Button color
-              ),
-              onPressed: () async {
-                // Perform logout action here
-
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Logged out successfully')),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  final _iconList = <IconData>[
-    Icons.home,
-    Icons.chat_bubble,
-    Icons.search,
-    Icons.person,
-  ];
 
   String _getAppBarTitle(int index) {
     switch (index) {
@@ -143,13 +79,38 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    final moviesProvider = context.read<MoviesProvider>();
+    _moviesController = MoviesController(moviesProvider: moviesProvider);
+
+    // Initial load
+    _moviesController.getMoviesList(context);
+
+    // Setup scroll listener for pagination
+    _scrollController.addListener(_scrollListener);
+    _tabs = [
+      MoviesTab(
+        onRefresh: () {
+          _refreshData();
+        },
+        scrollController: _scrollController,
+      ),
+      const MainChatScreen(),
+      const FavoritesAndWatchlistScreen(),
+      const ProfileScreen(),
+      const RecommendScreen(),
+    ];
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         extendBody: true,
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.black,
-        appBar: [0,2,3].contains( _currentIndex) ? AppBar(
+        appBar: [0,3].contains( _currentIndex) ? AppBar(
           backgroundColor: Colors.black.withOpacity(0.2),
           elevation: 0,
           actions: [
@@ -212,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: Styles.primaryColor,
           elevation: 8,
           shape: const CircleBorder(),
-          child: const Icon(Icons.movie, color: Colors.white),
+          child: const Icon(Icons.auto_awesome_rounded, color: Colors.white),
           onPressed: () => setState(() => _currentIndex = 4),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -221,13 +182,20 @@ class _HomeScreenState extends State<HomeScreen> {
           activeIndex: _currentIndex,
           gapLocation: GapLocation.center,
           notchSmoothness: NotchSmoothness.softEdge,
-          backgroundColor: Colors.black.withOpacity(0.6),
+          backgroundColor: const Color(0xFF121212),
           leftCornerRadius: 20,
           rightCornerRadius: 20,
           onTap: (index) => setState(() => _currentIndex = index),
           activeColor: Styles.primaryColor,
           inactiveColor: Colors.white60,
           iconSize: 26,
+          backgroundGradient: LinearGradient(
+            colors: [Color(0xFF1A1A1A), Color(0xFF121212)], // Slight contrast
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          // backgroundGradient: LinearGradient(colors: [Colors.grey,Colors.grey]),
+
         ),
       ),
     );
