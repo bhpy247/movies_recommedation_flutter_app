@@ -103,19 +103,21 @@ class ChatRepository {
     for (var doc in snapshot.docs) {
       final data = doc.data();
       final docUsername = doc.id;
-
-      if (friends.contains(docUsername) || sentRequests.contains(docUsername)) continue;
-
-      final favScore = _matchScore(List.from(data['favorites'] ?? []), favorites);
-      final watchScore = _matchScore(List.from(data['watchlist'] ?? []), watchlist);
-      final score = favScore + watchScore;
-
-      // if (score > 0) {
-        suggestions.add({...data, 'username': docUsername, 'score': score});
+      //
+      // if (friends.contains(docUsername) || sentRequests.contains(docUsername)) {
+      //   // Debug
+      //   print('Skipping friend/sent: $docUsername');
+      //   continue;
       // }
+
+      // final favScore = _matchScore(List.from(data['favorites'] ?? []), favorites);
+      // final watchScore = _matchScore(List.from(data['watchlist'] ?? []), watchlist);
+      // final score = favScore + watchScore;
+
+      suggestions.add({...data, 'username': docUsername,});
     }
 
-    suggestions.sort((a, b) => (b['score']).compareTo(a['score']));
+    // suggestions.sort((a, b) => (b['score']).compareTo(a['score']));
     return suggestions.take(10).toList();
   }
 

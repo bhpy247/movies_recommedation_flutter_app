@@ -47,13 +47,15 @@ class _FriendSuggestionsScreenState extends State<FriendSuggestionsScreen> {
       friends: _friends,
       sentRequests: _sent,
     );
+    MyPrint.printOnConsole("data: ${data} ${_sent}");
     setState(() => _suggestions = data);
   }
 
   Future<void> _sendRequest(String toUsername) async {
     MyPrint.printOnConsole("FromUserName: $_fromUserId toUserName: $toUsername");
     await _chatController.sendFriendRequest(_fromUserId, toUsername);
-    _loadSuggestions();
+   await _loadSuggestions();
+    _sent.addAll([toUsername]);
   }
 
   @override
@@ -70,10 +72,34 @@ class _FriendSuggestionsScreenState extends State<FriendSuggestionsScreen> {
           return ListTile(
             title: Text(s['displayName'] ?? '', style: const TextStyle(color: Colors.white)),
             subtitle: Text('@${s['username']}', style: const TextStyle(color: Colors.white54)),
-            trailing: ElevatedButton(
-              onPressed: () => _sendRequest(toUserId),
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD24DFF)),
-              child: const Text("Add",style: TextStyle(color: Colors.white),),
+            trailing: Builder(
+              builder: (_) {
+                final toUsername = s['uid'];
+                final isSent = _sent.contains(toUsername);
+                MyPrint.printOnConsole("isSent : ${isSent}");
+                final isFriend = _friends.contains(toUsername);
+
+                if (isFriend) {
+                  return ElevatedButton(
+                    // onPressed: () => _unfriend(toUsername),
+                    onPressed: (){},
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: const Text("Unfriend", style: TextStyle(color: Colors.white)),
+                  );
+                } else if (isSent) {
+                  return ElevatedButton(
+                    onPressed: null, // or show Undo logic
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                    child: const Text("Request Sent", style: TextStyle(color: Colors.white)),
+                  );
+                } else {
+                  return ElevatedButton(
+                    onPressed: () => _sendRequest(toUsername),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD24DFF)),
+                    child: const Text("Add", style: TextStyle(color: Colors.white)),
+                  );
+                }
+              },
             ),
           );
         },

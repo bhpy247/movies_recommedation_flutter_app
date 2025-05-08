@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/authentication/authentication_controller.dart';
@@ -53,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         scrollController: _scrollController,
       ),
-      const ChatScreen(),
+      const MainChatScreen(),
       const MystuffScreen(),
       const ProfileScreen(),
       const RecommendScreen(),
@@ -101,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ElevatedButton(
-              child: Text('Logout', style: TextStyle(color: Colors.white)),
+              child: Text('Logout',style: TextStyle(color: Colors.white),),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFD24DFF), // Button color
               ),
@@ -123,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _iconList = <IconData>[
     Icons.home,
     Icons.chat_bubble,
-    Icons.inventory_2,
+    Icons.search,
     Icons.person,
   ];
 
@@ -151,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
         extendBody: true,
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.black,
-        appBar: [0,2,3].contains(_currentIndex) ? AppBar(
+        appBar: [0,2,3].contains( _currentIndex) ? AppBar(
           backgroundColor: Colors.black.withOpacity(0.2),
           elevation: 0,
           actions: [
@@ -172,19 +170,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ) : null,
         body: Stack(
           children: [
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    // Color(0xFF0F0C29),
-                    // Color(0xFF302B63),
-                    // Color(0xFF24243E),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
             if (_currentIndex == 0)
               Positioned(
                 top: 20,
