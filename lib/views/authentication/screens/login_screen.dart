@@ -247,7 +247,7 @@ Widget build(BuildContext context) {
                               style: TextStyle(color: Colors.white70),
                             ),
                             TextButton(
-                              onPressed: () => Navigator.pushNamed(context, '/signup'),
+                              onPressed: () => NavigationController.navigateToRegistrationScreen(navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamedAndRemoveUntil)),
                               child: const Text(
                                 'Sign up!',
                                 style: TextStyle(
