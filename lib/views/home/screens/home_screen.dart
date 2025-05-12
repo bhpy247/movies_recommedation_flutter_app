@@ -2,6 +2,8 @@ import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.da
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/authentication/authentication_controller.dart';
 import 'package:moviesapp/backend/navigation/navigation_controller.dart';
+import 'package:moviesapp/backend/navigation/navigation_operation_parameters.dart';
+import 'package:moviesapp/backend/navigation/navigation_type.dart';
 import 'package:moviesapp/views/chat/screens/chat_screen.dart';
 import 'package:moviesapp/views/mystuff/screens/mystuff_screen.dart';
 import 'package:moviesapp/views/chat/screens/main_chat_screen.dart';
@@ -142,6 +144,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: TextField(
+                    onTap: (){
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      NavigationController.navigateToSearchMovieScreen(navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed));
+                    },
                     style: const TextStyle(color: Colors.white),
                     cursorColor: Colors.white,
                     decoration: InputDecoration(
@@ -157,9 +163,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       enabledBorder: InputBorder.none,
 
                     ),
-                    onChanged: (value) {
-                      // search logic here
-                    },
+                    onTapAlwaysCalled: true,
+                    // onChanged: (value) {
+                    //   // search logic here
+                    // },
                   ),
                 ),
               ),

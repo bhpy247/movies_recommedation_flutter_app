@@ -19,14 +19,14 @@ class MoviesController {
   late MoviesProvider _moviesProvider;
   late MoviesRepository _moviesRepository;
 
-  MoviesController({required MoviesProvider? moviesProvider, MoviesRepository? repository}) {
-    _moviesProvider = moviesProvider ?? MoviesProvider();
-    _moviesRepository = repository ?? MoviesRepository(apiController: ApiController());
-  }
+    MoviesController({required MoviesProvider? moviesProvider, MoviesRepository? repository}) {
+      _moviesProvider = moviesProvider ?? MoviesProvider();
+      _moviesRepository = repository ?? MoviesRepository(apiController: ApiController());
+    }
 
-  MoviesProvider get moviesProvider => _moviesProvider;
+    MoviesProvider get moviesProvider => _moviesProvider;
 
-  MoviesRepository get moviesRepository => _moviesRepository;
+    MoviesRepository get moviesRepository => _moviesRepository;
 
   Future<void> getMoviesList(BuildContext context, {bool isRefresh = true}) async {
     try {
@@ -84,7 +84,7 @@ class MoviesController {
       moviesProvider.movieDetailLoading.set(value: true);
 
       final DataResponseModel<MovieDetailsModel> response = await moviesRepository.getMovieDetails(movieId);
-
+      getMovieVideos(movieId);
       if (response.data == null) {
         moviesProvider.error.set(value: 'Failed to load movie details');
         return;
@@ -235,5 +235,26 @@ class MoviesController {
       moviesProvider.error.set(value: 'Failed to load watchlist movies');
     }
   }
+
+  Future<void> getMovieVideos(int movieId) async {
+    moviesProvider.isSimilarLoading.set(value: true);
+    moviesProvider.youtubeTrailerId.set(value: "");
+    final response = await moviesRepository.getMovieVideos(movieId);
+
+    if (response.statusCode == 200 && response.data != null) {
+
+      response.data?.results?.forEach((element){
+        if(element.name?.contains("Official Trailer") ?? false) {
+          moviesProvider.youtubeTrailerId.set(value: "${element.key}");
+        }
+      });
+
+    } else {
+      moviesProvider.error.set(value: response.appErrorModel?.message ?? "Failed to load similar movies");
+    }
+
+    moviesProvider.isSimilarLoading.set(value: false);
+  }
+
 
 }

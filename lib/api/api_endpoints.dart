@@ -32,6 +32,14 @@ class ApiEndpoints {
   String apiGetRecommendations(int movieId) {
     return '${getBaseApiUrl()}${movieId}/recommendations?api_key=${getApiKey()}';
   }
+
+  String apiSearchMovies(String query) {
+    final encodedQuery = Uri.encodeComponent(query.trim());
+    return "https://api.themoviedb.org/3/search/movie?query=$encodedQuery&api_key=${getApiKey()}}";
+  }
+  String apiMoviesVideos(int movieId) {
+    return "https://api.themoviedb.org/3/movie/${movieId}/videos?api_key=${getApiKey()}";
+  }
   //endregion
 
 

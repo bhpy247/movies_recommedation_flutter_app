@@ -8,8 +8,8 @@ class Styles{
   factory Styles() => _instance;
 
   //region ShimmerColors
-  static Color shimmerHighlightColor = const Color(0xfff2f2f2);
-  static Color shimmerBaseColor = const Color(0xffb6b6b6);
+  static Color shimmerHighlightColor = const Color(0xfd707070);
+  static Color shimmerBaseColor = const Color(0xec818181);
   static Color shimmerContainerColor = const Color(0xffc2c2c2);
   static Color greyColor = const Color(0xffa6a6a6);
 
