@@ -6,6 +6,7 @@ import 'package:moviesapp/views/authentication/screens/sign_up_screen.dart';
 import 'package:moviesapp/views/chat/screens/friend_request.dart';
 import 'package:moviesapp/views/chat/screens/friend_suggestion.dart';
 import 'package:moviesapp/views/movies/screen/movie_details.dart';
+import 'package:moviesapp/views/search_movies/screens/search_screen.dart';
 
 import '../../utils/my_print.dart';
 
@@ -124,6 +125,12 @@ class NavigationController {
           page = parseFriendRequestsScreen(settings: settings);
           break;
         }
+
+        case SearchMoviesScreen.routeName:
+      {
+        page = parseSearchMoviesScreen(settings: settings);
+        break;
+      }
     }
 
     if (page != null) {
@@ -226,6 +233,11 @@ class NavigationController {
     return const FriendSuggestionsScreen();
   }
 
+
+  static Widget? parseSearchMoviesScreen({required RouteSettings settings}) {
+    return const SearchMoviesScreen();
+  }
+
   //endregion
 
   //region Navigation Methods
@@ -293,7 +305,13 @@ static Future<dynamic> navigateToMovieDetailScreen({
       navigationOperationParameters: navigationOperationParameters.copyWith(routeName: FriendRequestsScreen.routeName),
     );
   }
-
+  static Future<dynamic> navigateToSearchMovieScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: SearchMoviesScreen.routeName),
+    );
+  }
 
 //endregion
 }

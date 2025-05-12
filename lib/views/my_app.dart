@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moviesapp/backend/search/search_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../backend/app_theme/app_theme_provider.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AuthenticationProvider>(create: (_) => AuthenticationProvider(), lazy: false),
         ChangeNotifierProvider<MoviesProvider>(create: (_) => MoviesProvider(), lazy: false),
         ChangeNotifierProvider<ChatProvider>(create: (_) => ChatProvider(), lazy: false),
+        ChangeNotifierProvider<SearchProvider>(create: (_) => SearchProvider(), lazy: false),
       ],
       child: const MainApp(),
     );

@@ -9,6 +9,7 @@ import 'package:moviesapp/backend/navigation/navigation_operation_parameters.dar
 import 'package:moviesapp/backend/navigation/navigation_type.dart';
 import 'package:moviesapp/backend/user/user_controller.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../backend/movies/movies_provider.dart';
 import '../../../configs/app_colors.dart';
@@ -48,7 +49,17 @@ class MoviesTab extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(10),
       itemCount: 10,
-      itemBuilder: (context, index) => const ShimmerGridItem(),
+      itemBuilder: (context, index) {
+        return SizedBox(
+          width: 200.0,
+          height: 100.0,
+          child: Shimmer.fromColors(
+            baseColor: Styles.shimmerBaseColor.withOpacity(.2),
+            highlightColor: Styles.shimmerHighlightColor.withOpacity(.4),
+            child: ShimmerGridItem()
+          ),
+        );
+      },
     );
   }
 
