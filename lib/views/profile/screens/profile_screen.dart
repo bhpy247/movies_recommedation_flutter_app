@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/authentication/authentication_provider.dart';
+import 'package:moviesapp/backend/navigation/navigation_arguments.dart';
+import 'package:moviesapp/backend/navigation/navigation_controller.dart';
+import 'package:moviesapp/backend/navigation/navigation_operation_parameters.dart';
+import 'package:moviesapp/backend/navigation/navigation_type.dart';
+import 'package:moviesapp/utils/web_screen.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -25,7 +30,11 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Consumer<AuthenticationProvider>(
-          builder: (context,AuthenticationProvider authenticationProvider,child) {
+          builder: (
+            context,
+            AuthenticationProvider authenticationProvider,
+            child,
+          ) {
             final userModel = authenticationProvider.userModel.get();
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -35,8 +44,8 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: primaryColor,width: .1),
-                        shape: BoxShape.circle
+                        border: Border.all(color: primaryColor, width: .1),
+                        shape: BoxShape.circle,
                       ),
                       child: CircleAvatar(
                         radius: 70,
@@ -49,11 +58,10 @@ class ProfileScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-
                       ),
                     ),
                     const SizedBox(height: 12),
-                     Text(
+                    Text(
                       userModel?.displayName ?? "",
                       style: TextStyle(
                         color: Colors.white,
@@ -76,15 +84,42 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildOption(context, Icons.edit, "Edit Profile", primaryColor),
+                    _buildOption(
+                      context,
+                      Icons.edit,
+                      "Edit Profile",
+                      primaryColor,
+                    ),
                     // _buildOption(context, Icons.person_add_alt_1, "Find Friends", primaryColor),
-                    _buildOption(context, Icons.privacy_tip_outlined, "Privacy & Security", primaryColor),
+                    _buildOption(
+                      context,
+                      Icons.privacy_tip_outlined,
+                      "Privacy & Security",
+                      primaryColor,
+                    ),
                     // _buildOption(context, Icons.notifications_none, "Notification Settings", primaryColor),
-                    _buildOption(context, Icons.help_outline, "Help & Support", primaryColor),
+                    _buildOption(
+                      context,
+                      Icons.help_outline,
+                      "Help & Support",
+                      primaryColor,
+                      onTap: (){
+                        NavigationController.navigateWebViewScreen(
+                          navigationOperationParameters:
+                              NavigationOperationParameters(
+                                context: context,
+                                navigationType: NavigationType.pushNamed,
+                              ),
+                          arguments: WebViewScreenArguments(
+                            url:
+                                "https://widget-page.smartsupp.com/widget/800683186e8c9aa74b24c35f673464e954e7595e",
+                            title: "Help & Support",
+                          ),
+                        );
+                      }
+                    ),
                     GestureDetector(
-                      onTap: () {
-                        // Handle logout logic
-                      },
+                      onTap: () {},
                       child: Text(
                         "Sign Out",
                         style: TextStyle(
@@ -99,33 +134,42 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             );
-          }
+          },
         ),
       ),
     );
   }
 
-  Widget _buildOption(BuildContext context, IconData icon, String label, Color color) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white.withOpacity(0.06),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 26),
-          const SizedBox(width: 16),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
+  Widget _buildOption(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color color,
+    {Function()? onTap}
+  ) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white.withOpacity(0.06),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 26),
+            const SizedBox(width: 16),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
