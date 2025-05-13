@@ -8,6 +8,7 @@ import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.
 
 import '../../utils/my_print.dart';
 import '../../utils/parsing_helper.dart';
+import '../user_model/user_model.dart';
 
 typedef ModelDataParsingCallbackTypeDef<T> = T? Function({required dynamic decodedValue});
 
@@ -132,10 +133,6 @@ class ModelDataParser {
 
     if (map.isNotEmpty) {
       return ActorDetailModel.fromJson(map);
-    }
-    return null;
- }
-
   static MovieVideosResponse? parseMovieResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
@@ -159,4 +156,3 @@ class ModelDataParser {
 
 //endregion
 }
-

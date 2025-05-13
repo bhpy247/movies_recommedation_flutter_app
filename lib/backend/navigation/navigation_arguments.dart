@@ -49,15 +49,6 @@ class ActorScreenArguments extends NavigationArguments {
   });
 }
 
-class WebViewScreenArguments extends NavigationArguments {
-  final String url,  title;
-
-  const WebViewScreenArguments({
-    required this.url,
-    required this.title,
-  });
-}
-
 
 // class EventDetailNavigationArgument extends NavigationArguments {
 //   final EventModel eventModel;

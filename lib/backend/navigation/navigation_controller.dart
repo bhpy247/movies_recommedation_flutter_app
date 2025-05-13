@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/navigation/navigation_arguments.dart';
-import 'package:moviesapp/utils/web_screen.dart';
 import 'package:moviesapp/views/authentication/screens/sign_up_screen.dart';
 import 'package:moviesapp/views/chat/screens/friend_request.dart';
 import 'package:moviesapp/views/chat/screens/friend_suggestion.dart';
@@ -138,11 +137,6 @@ class NavigationController {
         page = parseSearchMoviesScreen(settings: settings);
         break;
       }
-           case WebviewScreen.routeName:
-      {
-        page = parseWebViewScreen(settings: settings);
-        break;
-      }
     }
 
     if (page != null) {
@@ -252,19 +246,9 @@ class NavigationController {
     } else {
       return null;
     }
-    }
 
   static Widget? parseSearchMoviesScreen({required RouteSettings settings}) {
     return const SearchMoviesScreen();
-  }
-
-    static Widget? parseWebViewScreen({required RouteSettings settings}) {
-    dynamic argument = settings.arguments;
-    if (argument is WebViewScreenArguments) {
-      return WebviewScreen(title: argument.title, url: argument.url);
-    } else {
-      return null;
-    }
   }
 
   //endregion
@@ -342,23 +326,11 @@ static Future<dynamic> navigateToMovieDetailScreen({
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(routeName: ActorProfileScreen.routeName, arguments: arguments),
      
-    );
-  }
-   static Future<dynamic> navigateToSearchMovieScreen({
+  static Future<dynamic> navigateToSearchMovieScreen({
     required NavigationOperationParameters navigationOperationParameters,
   }) {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(routeName: SearchMoviesScreen.routeName),
-    );
-  }
-
-    static Future<dynamic> navigateWebViewScreen({
-    required NavigationOperationParameters navigationOperationParameters,
-    required WebViewScreenArguments arguments,
-  }) {
-    return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: WebviewScreen.routeName, arguments: arguments),
-     
     );
   }
 
