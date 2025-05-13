@@ -67,90 +67,31 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
       child: Column(
         children: [
           _buildBackdropImage(movie),
-          _buildMoviePosterAndTitle(movie),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.only(left: 12, right: 12, top: 0, bottom: 0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildGenresList(movie),
-                const SizedBox(height: 16),
-                _buildRating(movie),
-                const SizedBox(height: 16),
-                _buildOverview(movie),
-                const SizedBox(height: 16),
-                const Text('Cast', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
-                CastWidget(movieId: movie.id ?? 0),
-                const SizedBox(height: 16),
-                const Text('Similar', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
-                SimilarMoviesWidget(movieId: movie.id ?? 0),
-                const SizedBox(height: 40),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBackdropImage(MovieDetailsModel movie) {
-    return SizedBox(
-      height: 221,
-      child: Stack(
-        children: [
-          if (movie.backdropPath != null)
-            CachedNetworkImage(
-              imageUrl: 'https://image.tmdb.org/t/p/original${movie.backdropPath}',
-              width: double.infinity,
-              height: 221,
-              fit: BoxFit.cover,
-            ),
-          Container(width: double.infinity, height: 221, color: Colors.black.withOpacity(0.4)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMoviePosterAndTitle(MovieDetailsModel movie) {
-    return Transform.translate(
-      offset: const Offset(10, -100),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 200,
-            width: 130,
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey.withOpacity(0.2))),
-            child:
-                movie.posterPath != null
-                    ? CachedNetworkImage(imageUrl: 'https://image.tmdb.org/t/p/original${movie.posterPath}', fit: BoxFit.cover)
-                    : const Placeholder(),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 70),
-                Text(movie.title ?? "", style: const TextStyle(fontSize: 25, color: Colors.white), maxLines: 2, overflow: TextOverflow.ellipsis),
-                Text(
-                  DateFormat('MMMM d, y').format(DateTime.parse(movie.releaseDate ?? "")),
-                  style: const TextStyle(fontSize: 17, color: Colors.grey),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () => setState(() => _shareVisible = true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD24DFF),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text('SHARE', style: TextStyle(color: Colors.white, fontSize: 17)),
-                      SizedBox(width: 5),
-                      Icon(Icons.share, size: 17, color: Colors.white),
+                _buildMoviePosterAndTitle(movie),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildGenresList(movie),
+                      const SizedBox(height: 20),
+                      _buildRating(movie),
+                      const SizedBox(height: 20),
+                      _buildOverview(movie),
+                      const Divider(color: Colors.white24, thickness: 0.5),
+                      const SizedBox(height: 16),
+                      const Text('Cast', style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: 0.7)),
+                      const SizedBox(height: 10),
+                      CastWidget(movieId: movie.id ?? 0),
+                      const SizedBox(height: 20),
+                      const Text('Similar', style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: 0.7)),
+                      const SizedBox(height: 10),
+                      SimilarMoviesWidget(movieId: movie.id ?? 0),
+                      const SizedBox(height: 40),
                     ],
                   ),
                 ),
@@ -162,34 +103,165 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     );
   }
 
+  Widget _buildBackdropImage(MovieDetailsModel movie) {
+    return SizedBox(
+      height: 240,
+      child: Stack(
+        children: [
+          if (movie.backdropPath != null)
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+              child: CachedNetworkImage(
+                imageUrl: 'https://image.tmdb.org/t/p/original${movie.backdropPath}',
+                width: double.infinity,
+                height: 240,
+                fit: BoxFit.cover,
+              ),
+            ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.black.withOpacity(0.2), Colors.black.withOpacity(0.95)],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMoviePosterAndTitle(MovieDetailsModel movie) {
+    return Transform.translate(
+      offset: const Offset(0, -40),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 200,
+              width: 130,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.4),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  )
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Hero(
+                  tag: 'poster_${movie.id}',
+                  child: movie.posterPath != null
+                      ? CachedNetworkImage(
+                          imageUrl: 'https://image.tmdb.org/t/p/original${movie.posterPath}',
+                          fit: BoxFit.cover,
+                        )
+                      : const Placeholder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(movie.title ?? "",
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat('MMMM d, y').format(DateTime.parse(movie.releaseDate ?? "")),
+                      style: const TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () => setState(() => _shareVisible = true),
+                      icon: const Icon(Icons.share, size: 18, color: Colors.white),
+                      label: const Text("SHARE", style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD24DFF),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        elevation: 8,
+                        shadowColor: const Color(0xFFD24DFF).withOpacity(0.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildGenresList(MovieDetailsModel movie) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Genres', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 15,
-          runSpacing: 10,
-          children:
-              (movie.genres ?? [])
-                  .map(
-                    (genre) => Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(20)),
-                      child: Text(genre.name ?? "", style: const TextStyle(fontSize: 15, color: Colors.white)),
-                    ),
-                  )
-                  .toList(),
+        const Text('Genres', style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: 0.7)),
+        const SizedBox(height: 6),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: (movie.genres ?? []).map((genre) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  gradient: LinearGradient(
+                    colors: [const Color(0xFFD24DFF).withOpacity(0.2), const Color(0xFF6A1B9A).withOpacity(0.2)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  border: Border.all(color: const Color(0xFFD24DFF).withOpacity(0.3)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFD24DFF).withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
+                ),
+                child: Text(
+                  genre.name ?? "",
+                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
   }
 
   Widget _buildRating(MovieDetailsModel movie) {
-    return Text(
-      'Rating: ${movie.voteAverage?.toStringAsFixed(2)}',
-      style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+    return Row(
+      children: [
+        const Icon(Icons.star, color: Colors.amber, size: 24),
+        const SizedBox(width: 6),
+        Text(
+          movie.voteAverage?.toStringAsFixed(2) ?? "N/A",
+          style: const TextStyle(fontSize: 22, color: Colors.amber, fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 
@@ -197,9 +269,9 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Overview', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+        const Text('Overview', style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: 0.7)),
         const SizedBox(height: 8),
-        Text(movie.overview ?? "", style: const TextStyle(fontSize: 17, color: Colors.grey)),
+        Text(movie.overview ?? "", style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.85), height: 1.5)),
       ],
     );
   }

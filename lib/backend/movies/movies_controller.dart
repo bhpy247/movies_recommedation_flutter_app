@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/authentication/authentication_provider.dart';
 import 'package:moviesapp/backend/movies/movies_provider.dart';
+import 'package:moviesapp/models/movies/response_model/actor_model.dart';
 import 'package:moviesapp/models/movies/response_model/movies_detail_response_model.dart';
 import 'package:moviesapp/models/movies/response_model/movies_response_model.dart';
 import 'package:moviesapp/utils/extensions.dart';
@@ -235,5 +236,19 @@ class MoviesController {
       moviesProvider.error.set(value: 'Failed to load watchlist movies');
     }
   }
+
+  Future<ActorDetailModel?> getActorProfile(int actorId) async {
+  try {
+    final response = await _moviesRepository.getActorDetails(actorId);
+    if (response.statusCode == 200 && response.data != null) {
+      return response.data!;
+    } else {
+      MyPrint.printOnConsole('Failed to fetch actor profile');
+    }
+  } catch (e) {
+    MyPrint.printOnConsole('Error: $e');
+  }
+  return null;
+}
 
 }

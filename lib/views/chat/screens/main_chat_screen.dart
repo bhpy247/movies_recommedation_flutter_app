@@ -23,24 +23,42 @@ class MainChatScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('CHAT', style: TextStyle(color: Colors.white, fontSize: 28)),
-        backgroundColor: Colors.black,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_add, color: Color(0xFFD24DFF)),
-            onPressed: () {
-              NavigationController.navigateToFriendSuggestionScreen(
-                navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-              );
-            },
+        title: const Text('Chats', style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.black, Colors.black87],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Color(0xFFD24DFF)),
-            onPressed: () {
-              NavigationController.navigateToFriendRequestScreen(
-                navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-              );
-            },
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.person_add_alt_1, color: Color(0xFFD24DFF)),
+                  onPressed: () {
+                    NavigationController.navigateToFriendSuggestionScreen(
+                      navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.notifications_none, color: Color(0xFFD24DFF)),
+                  onPressed: () {
+                    NavigationController.navigateToFriendRequestScreen(
+                      navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -66,23 +84,76 @@ class MainChatScreen extends StatelessWidget {
               itemCount: friends.length,
               itemBuilder: (context, index) {
                 final friend = friends[index];
-                return ListTile(
-                  title: Text(friend.displayName ?? "", style: const TextStyle(color: Colors.white)),
-                  subtitle: Text(friend.email ?? "", style: const TextStyle(color: Colors.white54)),
-                  trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xFFD24DFF)),
+                return GestureDetector(
                   onTap: () {
                     NavigationController.navigateToChatScreen(
-                        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-                        arguments: ChatScreenArguments(receiverId: friend.uid, receiverName: friend.displayName));
-                    // Navigator.pushNamed(
-                    //   context,
-                    //   '/chatScreen',
-                    //   arguments: {
-                    //     'receiverId': friend.uid,
-                    //     'receiverName': friend.displayName,
-                    //   },
-                    // );
+                      navigationOperationParameters: NavigationOperationParameters(
+                        context: context,
+                        navigationType: NavigationType.pushNamed,
+                      ),
+                      arguments: ChatScreenArguments(
+                        
+                        receiverId: friend.uid,
+                        receiverName: friend.displayName ?? '',
+                      ),
+                    );
                   },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        )
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 22,
+                          backgroundColor: const Color(0xFFD24DFF).withOpacity(0.2),
+                          child: Text(
+                            (friend.displayName?.isNotEmpty ?? false)
+                                ? friend.displayName![0].toUpperCase()
+                                : '?',
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                friend.displayName ?? '',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                friend.email ?? '',
+                                style: const TextStyle(
+                                  color: Colors.white60,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFD24DFF), size: 18),
+                      ],
+                    ),
+                  ),
                 );
               },
             );

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:moviesapp/configs/constants.dart';
 import 'package:moviesapp/configs/typedefs.dart';
+import 'package:moviesapp/models/movies/response_model/actor_model.dart';
 import 'package:moviesapp/models/movies/response_model/movies_response_model.dart';
 import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.dart';
 import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.dart';
@@ -113,4 +114,14 @@ class MoviesRepository {
 
     return results;
   }
+
+  Future<DataResponseModel<ActorDetailModel>> getActorDetails(int actorId) async {
+  final apiCallModel = await apiController.getApiCallModelFromData<String>(
+    restCallType: RestCallType.simpleGetCall,
+    parsingType: ModelDataParsingType.actorDetailModel, // Define in enum
+    url: "https://api.themoviedb.org/3/person/$actorId?api_key=fc6b0f8734f6d710fed11de93fc496cc&append_to_response=combined_credits",
+  );
+
+  return await apiController.callApi<ActorDetailModel>(apiCallModel: apiCallModel);
+}
 }

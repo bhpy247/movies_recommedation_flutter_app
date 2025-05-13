@@ -68,38 +68,96 @@ class _FriendSuggestionsScreenState extends State<FriendSuggestionsScreen> {
         itemBuilder: (_, i) {
           final s = _suggestions[i];
           MyPrint.printOnConsole("ss $s");
-          final toUserId = s["uid"];
-          return ListTile(
-            title: Text(s['displayName'] ?? '', style: const TextStyle(color: Colors.white)),
-            subtitle: Text('@${s['username']}', style: const TextStyle(color: Colors.white54)),
-            trailing: Builder(
-              builder: (_) {
-                final toUsername = s['uid'];
-                final isSent = _sent.contains(toUsername);
-                MyPrint.printOnConsole("isSent : ${isSent}");
-                final isFriend = _friends.contains(toUsername);
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.04),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: const Color(0xFFD24DFF).withOpacity(0.2),
+                  child: Text(
+                    (s['displayName']?.isNotEmpty ?? false) ? s['displayName'][0].toUpperCase() : '?',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        s['displayName'] ?? '',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '@${s['username']}',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Builder(
+                  builder: (_) {
+                    final toUsername = s['uid'];
+                    final isSent = _sent.contains(toUsername);
+                    final isFriend = _friends.contains(toUsername);
 
-                if (isFriend) {
-                  return ElevatedButton(
-                    // onPressed: () => _unfriend(toUsername),
-                    onPressed: (){},
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    child: const Text("Unfriend", style: TextStyle(color: Colors.white)),
-                  );
-                } else if (isSent) {
-                  return ElevatedButton(
-                    onPressed: null, // or show Undo logic
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                    child: const Text("Request Sent", style: TextStyle(color: Colors.white)),
-                  );
-                } else {
-                  return ElevatedButton(
-                    onPressed: () => _sendRequest(toUsername),
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD24DFF)),
-                    child: const Text("Add", style: TextStyle(color: Colors.white)),
-                  );
-                }
-              },
+                    if (isFriend) {
+                      return ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        ),
+                        child: const Text("Unfriend", style: TextStyle(color: Colors.white)),
+                      );
+                    } else if (isSent) {
+                      return ElevatedButton(
+                        onPressed: null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        ),
+                        child: const Text("Request Sent", style: TextStyle(color: Colors.white)),
+                      );
+                    } else {
+                      return ElevatedButton(
+                        onPressed: () => _sendRequest(toUsername),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD24DFF),
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          elevation: 6,
+                          shadowColor: const Color(0xFFD24DFF).withOpacity(0.4),
+                        ),
+                        child: const Text("Add", style: TextStyle(color: Colors.white)),
+                      );
+                    }
+                  },
+                ),
+              ],
             ),
           );
         },

@@ -5,6 +5,7 @@ import 'package:moviesapp/backend/navigation/navigation_arguments.dart';
 import 'package:moviesapp/views/authentication/screens/sign_up_screen.dart';
 import 'package:moviesapp/views/chat/screens/friend_request.dart';
 import 'package:moviesapp/views/chat/screens/friend_suggestion.dart';
+import 'package:moviesapp/views/movies/screen/actor_profile_screen.dart';
 import 'package:moviesapp/views/movies/screen/movie_details.dart';
 
 import '../../utils/my_print.dart';
@@ -124,6 +125,12 @@ class NavigationController {
           page = parseFriendRequestsScreen(settings: settings);
           break;
         }
+
+      case ActorProfileScreen.routeName:
+        {
+          page = parseActorProfileScreen(settings: settings);
+          break;
+        }
     }
 
     if (page != null) {
@@ -226,6 +233,15 @@ class NavigationController {
     return const FriendSuggestionsScreen();
   }
 
+    static Widget? parseActorProfileScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is ActorScreenArguments) {
+      return ActorProfileScreen(arguments: argument);
+    } else {
+      return null;
+    }
+  }
+
   //endregion
 
   //region Navigation Methods
@@ -294,6 +310,15 @@ static Future<dynamic> navigateToMovieDetailScreen({
     );
   }
 
+  static Future<dynamic> navigateActorProfileScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required ActorScreenArguments arguments,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: ActorProfileScreen.routeName, arguments: arguments),
+     
+    );
+  }
 
 //endregion
 }

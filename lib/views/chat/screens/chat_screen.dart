@@ -51,15 +51,38 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(receiverName, style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        titleSpacing: 0,
+        leading: const BackButton(color: Colors.white),
+        title: Row(
+          children: [
+            const CircleAvatar(
+              backgroundColor: Colors.white24,
+              child: Icon(Icons.person, color: Colors.white),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              receiverName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed:
-                () => NavigationController.navigateToFriendRequestScreen(
-                  navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            icon: const Icon(Icons.notifications, color: Color(0xFFD24DFF)),
+            onPressed: () {
+              NavigationController.navigateToFriendRequestScreen(
+                navigationOperationParameters: NavigationOperationParameters(
+                  context: context,
+                  navigationType: NavigationType.pushNamed,
                 ),
+              );
+            },
           ),
         ],
       ),
@@ -72,31 +95,76 @@ class _ChatScreenState extends State<ChatScreen> {
               itemBuilder: (context, index) {
                 final msg = messages[index];
                 final isMe = msg['sender_id'] == _myId;
-                return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.symmetric(vertical: 5),
-                    decoration: BoxDecoration(color: isMe ? const Color(0xFFD24DFF) : Colors.grey[800], borderRadius: BorderRadius.circular(10)),
-                    child: Text(msg['data'], style: const TextStyle(color: Colors.white)),
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Align(
+                    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+                      decoration: BoxDecoration(
+                        color: isMe ? const Color(0xFFD24DFF) : Colors.white10,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(isMe ? 12 : 0),
+                          topRight: Radius.circular(isMe ? 0 : 12),
+                          bottomLeft: const Radius.circular(12),
+                          bottomRight: const Radius.circular(12),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        msg['data'],
+                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                      ),
+                    ),
                   ),
                 );
               },
             ),
           ),
           Container(
-            color: const Color(0xFF353535),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            color: Colors.transparent,
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 24),
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(hintText: 'Type Here...', hintStyle: TextStyle(color: Colors.grey), border: InputBorder.none),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white12,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: TextField(
+                      controller: _controller,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Type a message...',
+                        hintStyle: TextStyle(color: Colors.grey),
+
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      ),
+                      
+                    ),
                   ),
                 ),
-                IconButton(icon: const Icon(Icons.send, color: Color(0xFFD24DFF)), onPressed: _sendMessage),
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: const Color(0xFFD24DFF),
+                  child: IconButton(
+                    icon: const Icon(Icons.send, size: 18, color: Colors.white),
+                    onPressed: _sendMessage,
+                  ),
+                ),
               ],
             ),
           ),

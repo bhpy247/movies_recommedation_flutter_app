@@ -2,6 +2,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/movies/movies_controller.dart';
+import 'package:moviesapp/backend/navigation/navigation_arguments.dart';
+import 'package:moviesapp/backend/navigation/navigation_controller.dart';
+import 'package:moviesapp/backend/navigation/navigation_operation_parameters.dart';
+import 'package:moviesapp/backend/navigation/navigation_type.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/movies/movies_provider.dart';
@@ -9,7 +13,8 @@ import '../../../backend/movies/movies_provider.dart';
 class SimilarMoviesWidget extends StatefulWidget {
   final int movieId;
 
-  const SimilarMoviesWidget({Key? key, required this.movieId}) : super(key: key);
+  const SimilarMoviesWidget({Key? key, required this.movieId})
+    : super(key: key);
 
   @override
   State<SimilarMoviesWidget> createState() => _SimilarMoviesWidgetState();
@@ -46,7 +51,14 @@ class _SimilarMoviesWidgetState extends State<SimilarMoviesWidget> {
               return GestureDetector(
                 onTap: () {
                   // Navigate to movie details
-                  Navigator.pushNamed(context, '/movie_details', arguments: movie.id);
+                  NavigationController.navigateToMovieDetailScreen(
+                    navigationOperationParameters:
+                        NavigationOperationParameters(
+                          context: context,
+                          navigationType: NavigationType.pushNamed,
+                        ),
+                    arguments: MoviesDetailArguments(movieId: movie.id ?? 0),
+                  );
                 },
                 child: Container(
                   width: 130,
@@ -54,12 +66,18 @@ class _SimilarMoviesWidgetState extends State<SimilarMoviesWidget> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: CachedNetworkImage(
-                      imageUrl: 'https://image.tmdb.org/t/p/original${movie.posterPath}',
+                      imageUrl:
+                          'https://image.tmdb.org/t/p/original${movie.posterPath}',
                       height: 200,
                       width: 130,
                       fit: BoxFit.cover,
                       errorWidget:
-                          (context, error, stackTrace) => Container(height: 200, width: 130, color: Colors.grey, child: const Icon(Icons.movie)),
+                          (context, error, stackTrace) => Container(
+                            height: 200,
+                            width: 130,
+                            color: Colors.grey,
+                            child: const Icon(Icons.movie),
+                          ),
                     ),
                   ),
                 ),

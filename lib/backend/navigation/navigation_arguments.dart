@@ -41,6 +41,14 @@ class ChatScreenArguments extends NavigationArguments {
   });
 }
 
+class ActorScreenArguments extends NavigationArguments {
+  final int actorId;
+
+  const ActorScreenArguments({
+    required this.actorId,
+  });
+}
+
 
 // class EventDetailNavigationArgument extends NavigationArguments {
 //   final EventModel eventModel;
