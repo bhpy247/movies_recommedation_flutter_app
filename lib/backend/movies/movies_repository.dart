@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:moviesapp/configs/constants.dart';
 import 'package:moviesapp/configs/typedefs.dart';
 import 'package:moviesapp/models/movies/response_model/actor_model.dart';
+import 'package:moviesapp/models/movies/response_model/movie_videos_response.dart';
 import 'package:moviesapp/models/movies/response_model/movies_response_model.dart';
 import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.dart';
 import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.dart';
@@ -96,6 +97,20 @@ class MoviesRepository {
     );
 
     final apiResponseModel = await apiController.callApi<MoviesResponseModel>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<MovieVideosResponse>> getMovieVideos(int movieId) async {
+    final apiEndpoints = apiController.apiEndpoints;
+
+    final apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.movieVideoResponse,
+      url: apiEndpoints.apiMoviesVideos(movieId),
+    );
+
+    final apiResponseModel = await apiController.callApi<MovieVideosResponse>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

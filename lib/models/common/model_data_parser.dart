@@ -1,6 +1,7 @@
 
 import 'package:moviesapp/models/movies/response_model/actor_model.dart';
 import 'package:moviesapp/models/movies/response_model/cast_model.dart';
+import 'package:moviesapp/models/movies/response_model/movie_videos_response.dart';
 import 'package:moviesapp/models/movies/response_model/movies_detail_response_model.dart';
 import 'package:moviesapp/models/movies/response_model/movies_response_model.dart';
 import 'package:moviesapp/models/movies/response_model/similar_movie_list_model.dart';
@@ -24,7 +25,8 @@ enum ModelDataParsingType {
   moviesDetailResponseModel,
   castListModel,
   similarMoviesModel,
-  actorDetailModel
+  actorDetailModel,
+  movieVideoResponse
 
   //region App Module
   // CurrencyDataResponseModel,
@@ -43,6 +45,7 @@ class ModelDataParser {
     ModelDataParsingType.castListModel: parseCastListResponseModel,
     ModelDataParsingType.similarMoviesModel: parseSimilarMovieResponseModel,
     ModelDataParsingType.actorDetailModel: parseActorProfileResponseModel,
+    ModelDataParsingType.movieVideoResponse: parseMovieResponseModel,
 
     //region App Module
     // ModelDataParsingType.CurrencyDataResponseModel: parseCurrencyDataResponseModel,
@@ -130,6 +133,11 @@ class ModelDataParser {
 
     if (map.isNotEmpty) {
       return ActorDetailModel.fromJson(map);
+  static MovieVideosResponse? parseMovieResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return MovieVideosResponse.fromJson(map);
     } else {
       return null;
     }

@@ -31,8 +31,7 @@ class MoviesProvider extends CommonProvider {
 
     favouriteMovieList = CommonProviderListParameter(list: [], notify: notify);
     watchList = CommonProviderListParameter(list: [], notify: notify);
-
-
+    youtubeTrailerId = CommonProviderPrimitiveParameter(value: "", notify: notify);
   }
 
   late CommonProviderListParameter<MoviesList> moviesList;
@@ -58,6 +57,8 @@ class MoviesProvider extends CommonProvider {
 
   late CommonProviderListParameter<MovieDetailsModel> favouriteMovieList;
   late CommonProviderListParameter<MovieDetailsModel> watchList;
+
+  late CommonProviderPrimitiveParameter<String> youtubeTrailerId;
 
 
 
@@ -87,10 +88,7 @@ class MoviesProvider extends CommonProvider {
     favouriteMovieList = CommonProviderListParameter(list: [], notify: notify);
     watchList = CommonProviderListParameter(list: [], notify: notify);
 
-
-
-
-
+    youtubeTrailerId = CommonProviderPrimitiveParameter(value: "", notify: notify);
 
     notifyListeners();
   }

@@ -77,9 +77,9 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     _buildOption(context, Icons.edit, "Edit Profile", primaryColor),
-                    _buildOption(context, Icons.person_add_alt_1, "Find Friends", primaryColor),
+                    // _buildOption(context, Icons.person_add_alt_1, "Find Friends", primaryColor),
                     _buildOption(context, Icons.privacy_tip_outlined, "Privacy & Security", primaryColor),
-                    _buildOption(context, Icons.notifications_none, "Notification Settings", primaryColor),
+                    // _buildOption(context, Icons.notifications_none, "Notification Settings", primaryColor),
                     _buildOption(context, Icons.help_outline, "Help & Support", primaryColor),
                     GestureDetector(
                       onTap: () {

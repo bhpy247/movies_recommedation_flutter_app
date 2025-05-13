@@ -1,13 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:moviesapp/backend/movies/movies_controller.dart';
 import 'package:moviesapp/backend/movies/movies_provider.dart';
 import 'package:moviesapp/backend/navigation/navigation_arguments.dart';
+import 'package:moviesapp/utils/extensions.dart';
+import 'package:moviesapp/utils/my_print.dart';
+import 'package:moviesapp/utils/my_utils.dart';
 import 'package:moviesapp/utils/parsing_helper.dart';
 import 'package:moviesapp/views/movies/screen/cast_list.dart';
 import 'package:moviesapp/views/movies/screen/similar_movies_list.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../models/movies/response_model/movies_detail_response_model.dart';
 
@@ -23,12 +29,35 @@ class MovieDetailsScreen extends StatefulWidget {
 
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late MoviesController _controller;
+  late MoviesProvider moviesProvider;
   bool _shareVisible = false;
+
+  void onShareClick(String id) async {
+    await SharePlus.instance.share(ShareParams(text: 'https://www.imdb.com/title/${id}/?ref_=hm_fanfav_i_1_pd_fp1_r'));
+  }
+
+  Future<void> launchYouTubeTrailer(String videoId) async {
+    final url = Uri.parse('https://www.youtube.com/watch?v=$videoId');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.inAppBrowserView);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void onWatchTrailerClick() async {
+    String youtubeId = moviesProvider.youtubeTrailerId.get();
+    MyPrint.printOnConsole("Youtube ID : ${youtubeId}");
+    if (youtubeId.checkNotEmpty) {
+      await launchYouTubeTrailer(youtubeId);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller = MoviesController(moviesProvider: context.read<MoviesProvider>());
+    moviesProvider = context.read<MoviesProvider>();
+    _controller = MoviesController(moviesProvider: moviesProvider);
     _controller.getMovieDetails(context, ParsingHelper.parseIntMethod(widget.arguments?.movieId));
   }
 
@@ -292,14 +321,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('SHARE', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold)),
-                    IconButton(
-                      onPressed: () => setState(() => _shareVisible = false),
-                      icon: const Icon(Icons.close, color: Color(0xFFD24DFF), size: 30),
-                    ),
+                    IconButton(onPressed: () => onShareClick, icon: const Icon(Icons.close, color: Color(0xFFD24DFF), size: 30)),
                   ],
                 ),
                 // Add your share options here
-                const Expanded(child: Center(child: Text('Share options would go here', style: TextStyle(color: Colors.white)))),
+                // const Expanded(child: Center(child: Text('Share options would go here', style: TextStyle(color: Colors.white)))),
               ],
             ),
           ),
