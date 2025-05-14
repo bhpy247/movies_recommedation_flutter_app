@@ -5,6 +5,10 @@ import 'package:moviesapp/backend/movies/movies_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/movies/movies_provider.dart';
+import '../../../backend/navigation/navigation_arguments.dart';
+import '../../../backend/navigation/navigation_controller.dart';
+import '../../../backend/navigation/navigation_operation_parameters.dart';
+import '../../../backend/navigation/navigation_type.dart';
 
 class SimilarMoviesWidget extends StatefulWidget {
   final int movieId;
@@ -46,7 +50,10 @@ class _SimilarMoviesWidgetState extends State<SimilarMoviesWidget> {
               return GestureDetector(
                 onTap: () {
                   // Navigate to movie details
-                  Navigator.pushNamed(context, '/movie_details', arguments: movie.id);
+                  NavigationController.navigateToMovieDetailScreen(
+                    navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                    arguments: MoviesDetailArguments(movieId: movie.id ?? 0),
+                  );
                 },
                 child: Container(
                   width: 130,
