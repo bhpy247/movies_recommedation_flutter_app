@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../api/api_controller.dart';
 import '../../configs/constants.dart';
 import '../../models/common/data_response_model.dart';
+import '../../models/movies/response_model/actor_detail_model.dart';
 import '../../utils/my_print.dart';
 import '../authentication/authentication_repository.dart';
 import 'movies_repository.dart';
@@ -254,6 +255,20 @@ class MoviesController {
     }
 
     moviesProvider.isSimilarLoading.set(value: false);
+  }
+
+  Future<ActorDetailModel?> getActorProfile(int actorId) async {
+    try {
+      final response = await _moviesRepository.getActorDetails(actorId);
+      if (response.statusCode == 200 && response.data != null) {
+        return response.data!;
+      } else {
+        MyPrint.printOnConsole('Failed to fetch actor profile');
+      }
+    } catch (e) {
+      MyPrint.printOnConsole('Error: $e');
+    }
+    return null;
   }
 
 

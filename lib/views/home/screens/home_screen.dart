@@ -1,6 +1,7 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:moviesapp/backend/authentication/authentication_controller.dart';
+import 'package:moviesapp/backend/authentication/authentication_provider.dart';
 import 'package:moviesapp/backend/navigation/navigation_controller.dart';
 import 'package:moviesapp/backend/navigation/navigation_operation_parameters.dart';
 import 'package:moviesapp/backend/navigation/navigation_type.dart';
@@ -14,6 +15,8 @@ import 'package:moviesapp/backend/movies/movies_provider.dart';
 import 'package:moviesapp/models/movies/response_model/movies_response_model.dart';
 import 'package:moviesapp/configs/app_colors.dart';
 
+import '../../../backend/user/user_controller.dart';
+import '../../../models/user_model/user_model.dart';
 import '../../movies/screen/movies_screen.dart';
 import '../../movies/screen/recommended_screen.dart';
 import '../components/shimmer_grid_item.dart';
@@ -83,7 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    getUserData();
     final moviesProvider = context.read<MoviesProvider>();
+
     _moviesController = MoviesController(moviesProvider: moviesProvider);
 
     // Initial load
@@ -105,6 +110,13 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
+  Future<void> getUserData() async {
+    final authenticationProvider = context.read<AuthenticationProvider>();
+    UserModel? user = await UserController(authenticationProvider: authenticationProvider).userRepository.getUserModelFromId(userId: authenticationProvider.userModel.get()?.uid ?? "");
+    authenticationProvider.updateCurrentUser(user ?? UserModel());
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -116,9 +128,9 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: Colors.black.withOpacity(0.2),
           elevation: 0,
           actions: [
-            IconButton(onPressed: () async {
-              await AuthenticationController(authenticationProvider: context.read()).logout(isShowConfirmationDialog: true,isNavigateToLogin: true);
-            }, icon: Icon(Icons.logout))
+            // IconButton(onPressed: () async {
+            //   await AuthenticationController(authenticationProvider: context.read()).logout(isShowConfirmationDialog: true,isNavigateToLogin: true);
+            // }, icon: Icon(Icons.logout))
           ],
           centerTitle: true,
           title: Text(

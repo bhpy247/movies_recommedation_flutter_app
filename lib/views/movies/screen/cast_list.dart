@@ -5,6 +5,10 @@ import 'package:moviesapp/backend/movies/movies_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/movies/movies_provider.dart';
+import '../../../backend/navigation/navigation_arguments.dart';
+import '../../../backend/navigation/navigation_controller.dart';
+import '../../../backend/navigation/navigation_operation_parameters.dart';
+import '../../../backend/navigation/navigation_type.dart';
 
 class CastWidget extends StatefulWidget {
   final int movieId;
@@ -48,10 +52,13 @@ class _CastWidgetState extends State<CastWidget> {
               return GestureDetector(
                 onTap: () {
                   // Navigate to actor profile
-                  Navigator.pushNamed(
-                    context,
-                    '/actor_profile',
-                    arguments: cast.id,
+                  NavigationController.navigateActorProfileScreen(
+                    navigationOperationParameters:
+                    NavigationOperationParameters(
+                      context: context,
+                      navigationType: NavigationType.pushNamed,
+                    ),
+                    arguments: ActorScreenArguments(actorId: cast.id ?? 0),
                   );
                 },
                 child: Container(

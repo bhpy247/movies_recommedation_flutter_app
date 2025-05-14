@@ -96,9 +96,9 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
       child: Column(
         children: [
           _buildBackdropImage(movie),
-          _buildMoviePosterAndTitle(movie),
+          Padding(padding: const EdgeInsets.only(left: 12, right: 12, top: 0, bottom: 0), child: _buildMoviePosterAndTitle(movie)),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -124,14 +124,14 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   Widget _buildBackdropImage(MovieDetailsModel movie) {
     return SizedBox(
-      height: 221,
+      height: 240,
       child: Stack(
         children: [
           if (movie.backdropPath != null)
             CachedNetworkImage(
               imageUrl: 'https://image.tmdb.org/t/p/original${movie.backdropPath}',
               width: double.infinity,
-              height: 221,
+              height: 240,
               fit: BoxFit.cover,
             ),
           Container(width: double.infinity, height: 221, color: Colors.black.withOpacity(0.4)),
@@ -150,86 +150,88 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   }
 
   Widget _buildMoviePosterAndTitle(MovieDetailsModel movie) {
-    return Transform.translate(
-      offset: const Offset(10, -100),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 200,
-            width: 130,
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey.withOpacity(0.2))),
-            child:
-                movie.posterPath != null
-                    ? CachedNetworkImage(imageUrl: 'https://image.tmdb.org/t/p/original${movie.posterPath}', fit: BoxFit.cover)
-                    : const Placeholder(),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 70),
-                Text(movie.title ?? "", style: const TextStyle(fontSize: 25, color: Colors.white), maxLines: 2, overflow: TextOverflow.ellipsis),
-                if (movie.releaseDate?.isNotEmpty ?? false)
-                  Text(
-                    DateFormat('MMMM d, y').format(DateTime.parse(movie.releaseDate ?? "")),
-                    style: const TextStyle(fontSize: 17, color: Colors.grey),
-                  ),
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.only(right:20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => onShareClick(movie.imdbId ?? ""),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFD24DFF),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Text('SHARE', style: TextStyle(color: Colors.white, fontSize: 17)),
-                              SizedBox(width: 5),
-                              Icon(Icons.share, size: 17, color: Colors.white),
-                            ],
-                          ),
-                        ),
+    return Container(
+      child: Transform.translate(
+        offset: const Offset(0, -40),
+        child: Container(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 200,
+                width: 130,
+                decoration: BoxDecoration(border: Border.all(color: Colors.grey.withOpacity(0.2))),
+                child:
+                    movie.posterPath != null
+                        ? CachedNetworkImage(imageUrl: 'https://image.tmdb.org/t/p/original${movie.posterPath}', fit: BoxFit.cover)
+                        : const Placeholder(),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 70),
+                    Text(movie.title ?? "", style: const TextStyle(fontSize: 25, color: Colors.white), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    if (movie.releaseDate?.isNotEmpty ?? false)
+                      Text(
+                        DateFormat('MMMM d, y').format(DateTime.parse(movie.releaseDate ?? "")),
+                        style: const TextStyle(fontSize: 17, color: Colors.grey),
                       ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      if(context.read<MoviesProvider>().youtubeTrailerId.get().checkNotEmpty)
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            onWatchTrailerClick();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFD24DFF),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => onShareClick(movie.imdbId ?? ""),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFD24DFF),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Text('SHARE', style: TextStyle(color: Colors.white, fontSize: 17)),
+                                  SizedBox(width: 5),
+                                  Icon(Icons.share, size: 17, color: Colors.white),
+                                ],
+                              ),
+                            ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('Trailer', style: TextStyle(color: Colors.white, fontSize: 17)),
-                              SizedBox(width: 5),
-                              Icon(FontAwesomeIcons.youtube, size: 17, color: Colors.white),
-                            ],
-                          ),
-                        ),
+                          SizedBox(width: 10),
+                          if (context.read<MoviesProvider>().youtubeTrailerId.get().checkNotEmpty)
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  onWatchTrailerClick();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFD24DFF),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('Trailer', style: TextStyle(color: Colors.white, fontSize: 17)),
+                                    SizedBox(width: 5),
+                                    Icon(FontAwesomeIcons.youtube, size: 17, color: Colors.white),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

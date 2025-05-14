@@ -14,6 +14,7 @@ import '../../api/rest_client.dart';
 import '../../models/authentication/login_request_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/model_data_parser.dart';
+import '../../models/movies/response_model/actor_detail_model.dart';
 import '../../models/movies/response_model/cast_model.dart';
 import '../../models/movies/response_model/movies_detail_response_model.dart';
 import '../../models/user_model/update_user_model.dart';
@@ -127,5 +128,15 @@ class MoviesRepository {
     }
 
     return results;
+  }
+
+  Future<DataResponseModel<ActorDetailModel>> getActorDetails(int actorId) async {
+    final apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.actorDetailModel, // Define in enum
+      url: "https://api.themoviedb.org/3/person/$actorId?api_key=fc6b0f8734f6d710fed11de93fc496cc&append_to_response=combined_credits",
+    );
+
+    return await apiController.callApi<ActorDetailModel>(apiCallModel: apiCallModel);
   }
 }

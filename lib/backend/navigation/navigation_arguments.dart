@@ -41,6 +41,22 @@ class ChatScreenArguments extends NavigationArguments {
   });
 }
 
+class WebViewScreenArguments extends NavigationArguments {
+  final String url,  title;
+
+  const WebViewScreenArguments({
+    required this.url,
+    required this.title,
+  });
+}
+
+class ActorScreenArguments extends NavigationArguments {
+  final int actorId;
+
+  const ActorScreenArguments({
+    required this.actorId,
+  });
+}
 
 // class EventDetailNavigationArgument extends NavigationArguments {
 //   final EventModel eventModel;

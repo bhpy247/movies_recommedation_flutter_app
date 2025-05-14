@@ -206,9 +206,12 @@ class AuthenticationController {
       UserModel createdUserModel = UserModel(uid: userId, email: userEmail, displayName: name, username: name);
       bool isCreated = await userController.createNewUser(userModel: createdUserModel);
       MyPrint.printOnConsole("isUserCreated:'$isCreated'");
+      MyPrint.printOnConsole("createdUserModel:'$createdUserModel'");
 
       if (isCreated) {
-        authenticationProvider.userModel.set(value: createdUserModel, isNotify: false);
+        authenticationProvider.userModel.set(value: createdUserModel);
+        MyPrint.printOnConsole("set User Model:'${authenticationProvider.userModel.get()?.toJson()}'");
+
       }
       // Store session data
       await _storeUserData(userCredential.user);

@@ -51,7 +51,7 @@ class UserRepository {
 
       userModel.createdTime = newDocumentDataModel.timestamp;
 
-      MyPrint.printOnConsole("Final userModel:'$userModel'", tag: tag);
+      MyPrint.printOnConsole("Final userModel:'${userModel.toJson()}'", tag: tag);
 
       await FirebaseNodes.userDocumentReference(userId: userModel.uid).set(userModel.toJson());
       isCreated = true;

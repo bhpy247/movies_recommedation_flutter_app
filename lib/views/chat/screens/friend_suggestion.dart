@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:moviesapp/backend/user/user_controller.dart';
+import 'package:moviesapp/models/user_model/user_model.dart';
 import 'package:moviesapp/utils/my_print.dart';
 import 'package:provider/provider.dart';
 
@@ -21,12 +23,13 @@ class _FriendSuggestionsScreenState extends State<FriendSuggestionsScreen> {
   List _favorites = [], _watchlist = [];
   List<String> _friends = [], _sent = [];
   final TextEditingController _search = TextEditingController();
+  late AuthenticationProvider authenticationProvider;
 
   @override
   void initState() {
     super.initState();
-    final auth = context.read<AuthenticationProvider>();
-    final user = auth.userModel.get();
+    authenticationProvider = context.read<AuthenticationProvider>();
+    final user = authenticationProvider.userModel.get();
     _fromUserId = user?.uid ?? '';
     _userName = user?.username ?? '';
     MyPrint.printOnConsole("User ${user?.toJson()}");
@@ -39,7 +42,10 @@ class _FriendSuggestionsScreenState extends State<FriendSuggestionsScreen> {
     _loadSuggestions();
   }
 
+
   Future<void> _loadSuggestions() async {
+    MyPrint.printOnConsole("FromUserName: $_fromUserId toUserName: $_userName");
+
     final data = await _chatController.getFriendSuggestions(
       username: _userName,
       favorites: _favorites,
@@ -67,11 +73,11 @@ class _FriendSuggestionsScreenState extends State<FriendSuggestionsScreen> {
         itemCount: _suggestions.length,
         itemBuilder: (_, i) {
           final s = _suggestions[i];
-          MyPrint.printOnConsole("ss $s");
+          MyPrint.printOnConsole("ss ${s["userName"]}");
           final toUserId = s["uid"];
           return ListTile(
             title: Text(s['displayName'] ?? '', style: const TextStyle(color: Colors.white)),
-            subtitle: Text('@${s['username']}', style: const TextStyle(color: Colors.white54)),
+            subtitle: Text('@${s['displayName']}', style: const TextStyle(color: Colors.white54)),
             trailing: Builder(
               builder: (_) {
                 final toUsername = s['uid'];

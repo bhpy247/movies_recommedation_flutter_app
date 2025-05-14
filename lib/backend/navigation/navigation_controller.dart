@@ -10,10 +10,13 @@ import 'package:moviesapp/views/search_movies/screens/search_screen.dart';
 
 import '../../utils/my_print.dart';
 
+import '../../utils/web_screen.dart';
 import '../../views/authentication/screens/login_screen.dart';
 import '../../views/authentication/screens/splash_screen.dart';
 import '../../views/chat/screens/chat_screen.dart';
 import '../../views/home/screens/home_screen.dart';
+import '../../views/movies/screen/actor_profile.dart';
+import '../../views/profile/screens/edit_profile_screen.dart';
 import 'navigation_operation.dart';
 import 'navigation_operation_parameters.dart';
 
@@ -131,6 +134,23 @@ class NavigationController {
         page = parseSearchMoviesScreen(settings: settings);
         break;
       }
+      case EditProfileScreen.routeName:
+        {
+          page = parseEditProfileScreen(settings: settings);
+          break;
+        }
+
+      case WebviewScreen.routeName:
+        {
+          page = parseWebViewScreen(settings: settings);
+          break;
+        }
+
+      case ActorProfileScreen.routeName:
+        {
+          page = parseActorProfileScreen(settings: settings);
+          break;
+        }
     }
 
     if (page != null) {
@@ -238,6 +258,26 @@ class NavigationController {
     return const SearchMoviesScreen();
   }
 
+  static Widget? parseEditProfileScreen({required RouteSettings settings}) {
+    return const EditProfileScreen();
+  }
+
+  static Widget? parseWebViewScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is WebViewScreenArguments) {
+      return WebviewScreen(title: argument.title, url: argument.url);
+    } else {
+      return null;
+    }
+  }
+  static Widget? parseActorProfileScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is ActorScreenArguments) {
+      return ActorProfileScreen(arguments: argument);
+    } else {
+      return null;
+    }
+  }
   //endregion
 
   //region Navigation Methods
@@ -312,6 +352,35 @@ static Future<dynamic> navigateToMovieDetailScreen({
       navigationOperationParameters: navigationOperationParameters.copyWith(routeName: SearchMoviesScreen.routeName),
     );
   }
+
+  static Future<dynamic> navigateToEditProfileScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: EditProfileScreen.routeName),
+    );
+  }
+
+  static Future<dynamic> navigateWebViewScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required WebViewScreenArguments arguments,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: WebviewScreen.routeName, arguments: arguments),
+
+    );
+  }
+
+  static Future<dynamic> navigateActorProfileScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required ActorScreenArguments arguments,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: ActorProfileScreen.routeName, arguments: arguments),
+
+    );
+  }
+
 
 //endregion
 }
