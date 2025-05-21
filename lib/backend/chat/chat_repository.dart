@@ -137,4 +137,15 @@ class ChatRepository {
       'friendRequests': FieldValue.arrayUnion([senderUsername])
     });
   }
+
+  Future<void> unfriendUser(String fromUserId, String toUserId) async {
+    // Make actual backend call or Firebase Firestore update here
+    await FirebaseFirestore.instance.collection('user').doc(fromUserId).update({
+      'friends': FieldValue.arrayRemove([toUserId])
+    });
+
+    await FirebaseFirestore.instance.collection('user').doc(toUserId).update({
+      'friends': FieldValue.arrayRemove([fromUserId])
+    });
+  }
 }

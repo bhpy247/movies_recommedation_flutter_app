@@ -212,6 +212,7 @@ class RestClient {
     if(apiCallModel.isAuthenticatedApiCall) {
       map.addAll(<String, String>{
         "Authorization": 'Bearer ${apiCallModel.token}',
+        // "Authorization": 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZjhmMjk1ZDQ0YWVhZWZjYzM1YWQ3ZDI3OGEzODNlNCIsIm5iZiI6MTY3MjIyOTI1NS42MjksInN1YiI6IjYzYWMzMTg3MWY3NDhiMDA4YTUxNDA3MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.iviCYh-Uosn_FCOFw8R6TVtRUfzduMTdZ3qb14bWjek',
         // "Accept": "*/*",
       });
     }

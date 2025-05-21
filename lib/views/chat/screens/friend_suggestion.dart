@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:moviesapp/backend/authentication/authentication_controller.dart';
 import 'package:moviesapp/backend/user/user_controller.dart';
 import 'package:moviesapp/models/user_model/user_model.dart';
 import 'package:moviesapp/utils/my_print.dart';
@@ -18,111 +19,135 @@ class FriendSuggestionsScreen extends StatefulWidget {
 }
 
 class _FriendSuggestionsScreenState extends State<FriendSuggestionsScreen> {
-  late ChatController _chatController;
-  List<Map<String, dynamic>> _suggestions = [];
-  late String _fromUserId;
-  late String _userName;
-  List _favorites = [], _watchlist = [];
-  List<String> _friends = [], _sent = [];
   final TextEditingController _search = TextEditingController();
-  late AuthenticationProvider authenticationProvider;
-  bool isLoading = false;
+  late final AuthenticationProvider _authProvider;
+  late final AuthenticationController _authController;
+  late final ChatController _chatController;
+
+  UserModel? _currentUser;
+  List<Map<String, dynamic>> _suggestions = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    authenticationProvider = context.read<AuthenticationProvider>();
-    final user = authenticationProvider.userModel.get();
-    _fromUserId = user?.uid ?? '';
-    _userName = user?.username ?? '';
-    MyPrint.printOnConsole("User ${user?.toJson()}");
-
-    _favorites = user?.favorites ?? [];
-    _watchlist = user?.watchlist ?? [];
-    _friends = user?.friends ?? [];
-    _sent = user?.sentFriendRequests ?? [];
+    _authProvider = context.read<AuthenticationProvider>();
+    _authController = AuthenticationController(authenticationProvider: _authProvider);
     _chatController = ChatController(chatProvider: null);
-    _loadSuggestions();
+    _fetchData();
   }
 
-  Future<void> _loadSuggestions() async {
-    isLoading = true;
-    setState(() {
-    });
-    MyPrint.printOnConsole("FromUserName: $_fromUserId toUserName: $_userName");
+  Future<void> _fetchData() async {
+    setState(() => _isLoading = true);
 
-    final data = await _chatController.getFriendSuggestions(
-      username: _userName,
-      favorites: _favorites,
-      watchlist: _watchlist,
-      friends: _friends,
-      sentRequests: _sent,
-    );
-    MyPrint.printOnConsole("data: ${data} ${_sent}");
-    setState(() => _suggestions = data);
-    isLoading = false;
-    setState(() {
-    });
+    try {
+      // Fetch latest user model
+      final userId = _authProvider.userId.get();
+      await _authController.getUserModel(userId: userId);
+
+      final user = _authProvider.userModel.get();
+      if (user == null) throw Exception("User not found");
+
+      _currentUser = user;
+
+      final suggestions = await _chatController.getFriendSuggestions(
+        username: user.username ?? '',
+        favorites: user.favorites ?? [],
+        watchlist: user.watchlist ?? [],
+        friends: user.friends ?? [],
+        sentRequests: user.sentFriendRequests ?? [],
+      );
+
+      _suggestions = suggestions;
+    } catch (e) {
+      debugPrint("Error loading suggestions: $e");
+    }
+
+    setState(() => _isLoading = false);
   }
 
-  Future<void> _sendRequest(String toUsername) async {
-    MyPrint.printOnConsole("FromUserName: $_fromUserId toUserName: $toUsername");
-    await _chatController.sendFriendRequest(_fromUserId, toUsername);
-    await _loadSuggestions();
-    _sent.addAll([toUsername]);
+  Future<void> _sendRequest(String toUserId) async {
+    if (_currentUser == null) return;
+
+    try {
+      await _chatController.sendFriendRequest(_currentUser!.uid, toUserId);
+      await _fetchData();
+    } catch (e) {
+      debugPrint("Send request error: $e");
+    }
+  }
+
+  Future<void> _unfriend(String toUserId) async {
+    if (_currentUser == null) return;
+
+    try {
+      await _chatController.unfriendUser(_currentUser!.uid, toUserId);
+      await _fetchData();
+    } catch (e) {
+      debugPrint("Unfriend error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to unfriend. Please try again.")),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return ModalProgressHUD(
-      inAsyncCall: isLoading,
-
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text("Friend Suggestions"),
         backgroundColor: Colors.black,
-        appBar: AppBar(
-          title: const Text("Friend Suggestions"),
-          backgroundColor: Colors.black,
-          actions: [IconButton(onPressed: () async {
-            await _loadSuggestions();
-          }, icon: Icon(Icons.refresh))],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _fetchData,
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFFD24DFF)))
+          : _suggestions.isEmpty
+          ? const Center(
+        child: Text(
+          "No suggestions found",
+          style: TextStyle(color: Colors.white),
         ),
-        body: ListView.builder(
+      )
+          : RefreshIndicator(
+        onRefresh: _fetchData,
+        child: ListView.builder(
           itemCount: _suggestions.length,
-          itemBuilder: (_, i) {
-            final s = _suggestions[i];
-            MyPrint.printOnConsole("ss ${s["userName"]}");
+          itemBuilder: (_, index) {
+            final s = _suggestions[index];
             final toUserId = s["uid"];
-            return ListTile(
-              title: Text(s['displayName'] ?? '', style: const TextStyle(color: Colors.white)),
-              subtitle: Text('@${s['displayName']}', style: const TextStyle(color: Colors.white54)),
-              trailing: Builder(
-                builder: (_) {
-                  final toUsername = s['uid'];
-                  final isSent = _sent.contains(toUsername);
-                  MyPrint.printOnConsole("isSent : ${isSent}");
-                  final isFriend = _friends.contains(toUsername);
+            final displayName = s["displayName"] ?? "";
 
-                  if (isFriend) {
-                    return ElevatedButton(
-                      // onPressed: () => _unfriend(toUsername),
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      child: const Text("Unfriend", style: TextStyle(color: Colors.white)),
-                    );
-                  } else if (isSent) {
-                    return ElevatedButton(
-                      onPressed: null, // or show Undo logic
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                      child: const Text("Request Sent", style: TextStyle(color: Colors.white)),
-                    );
-                  } else {
-                    return ElevatedButton(
-                      onPressed: () => _sendRequest(toUsername),
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD24DFF)),
-                      child: const Text("Add", style: TextStyle(color: Colors.white)),
-                    );
-                  }
-                },
+            final isFriend = _currentUser?.friends?.contains(toUserId) ?? false;
+            final isSent = _currentUser?.sentFriendRequests?.contains(toUserId) ?? false;
+
+            return ListTile(
+              title: Text(
+                displayName,
+                style: const TextStyle(color: Colors.white),
+              ),
+              subtitle: Text('@$displayName', style: const TextStyle(color: Colors.white54)),
+              trailing: isFriend
+                  ? ElevatedButton(
+                onPressed: () => _unfriend(toUserId),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text("Unfriend", style: TextStyle(color: Colors.white)),
+              )
+                  : isSent
+                  ? ElevatedButton(
+                onPressed: null,
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                child: const Text("Request Sent", style: TextStyle(color: Colors.white)),
+              )
+                  : ElevatedButton(
+                onPressed: () => _sendRequest(toUserId),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD24DFF)),
+                child: const Text("Add", style: TextStyle(color: Colors.white)),
               ),
             );
           },
@@ -131,3 +156,4 @@ class _FriendSuggestionsScreenState extends State<FriendSuggestionsScreen> {
     );
   }
 }
+

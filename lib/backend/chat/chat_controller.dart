@@ -80,5 +80,7 @@ class ChatController {
   Future<void> sendFriendRequest(String fromUsername, String toUsername) async {
     await _chatRepository.sendFriendRequest(fromUsername, toUsername);
   }
-
+  Future<void> unfriendUser(String fromUserId, String toUserId) async {
+    await _chatRepository.unfriendUser(fromUserId, toUserId);
+  }
 }

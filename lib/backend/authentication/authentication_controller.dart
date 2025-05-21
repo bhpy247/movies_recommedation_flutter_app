@@ -114,7 +114,7 @@ class AuthenticationController {
 
     try {
       UserModel? userModel = await userController.userRepository.getUserModelFromId(userId: userId);
-      MyPrint.printOnConsole("userModel:'$userModel'", tag: tag);
+      MyPrint.printOnConsole("userModel:'${userModel?.toJson()}'", tag: tag);
 
       if (userModel != null) {
         isUserExist = true;
